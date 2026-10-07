@@ -12,7 +12,7 @@ export default function Complete() {
   const { workout, dispatch } = useWorkout();
 
   if (!workout) return <Navigate to="/" replace />;
-  const { done, skipped, finished } = progress(workout);
+  const { done, skipped, doneSets, finished } = progress(workout);
   if (!finished) return <Navigate to="/workout" replace />;
 
   const swapped = workout.items.filter((i) => i.originalExerciseId);
@@ -57,7 +57,11 @@ export default function Complete() {
           )}
         </div>
 
-        <dl className="mt-4 grid w-full grid-cols-2 gap-3">
+        <dl className="mt-4 grid w-full grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-slate-100 py-4">
+            <dt className="text-xs text-slate-500">총 세트</dt>
+            <dd className="mt-1 text-xl font-bold text-navy-700">{doneSets}세트</dd>
+          </div>
           <div className="rounded-2xl border border-slate-100 py-4">
             <dt className="text-xs text-slate-500">완료</dt>
             <dd className="mt-1 text-xl font-bold text-navy-700">{done}개</dd>

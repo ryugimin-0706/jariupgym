@@ -66,7 +66,7 @@ export default function Home() {
         <button
           type="button"
           onClick={() => navigate('/workout')}
-          className="mt-5 flex w-full items-center gap-3 rounded-2xl bg-mint-500 p-4 text-left text-white active:bg-mint-600"
+          className="mt-5 flex w-full items-center gap-3 rounded-2xl bg-mint-700 p-4 text-left text-white active:bg-mint-800"
         >
           <span className="text-2xl" aria-hidden>
             🏃

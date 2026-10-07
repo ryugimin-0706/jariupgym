@@ -84,7 +84,7 @@ export default function SubstituteSheet({
                     <span className="flex items-center gap-1.5">
                       <span className="font-bold text-navy-900">{candidate.name}</span>
                       {i === 0 && (
-                        <span className="rounded-full bg-mint-500 px-2 py-0.5 text-[11px] font-bold text-white">
+                        <span className="rounded-full bg-mint-700 px-2 py-0.5 text-[11px] font-bold text-white">
                           추천
                         </span>
                       )}

@@ -154,7 +154,9 @@ export default function Workout() {
                 busy={exercise ? workout.busyEquipmentIds.includes(exercise.equipmentId) : false}
                 canMarkBusy={canMarkBusy(item.exerciseId)}
                 highlight={workout.lastSwappedKey === item.key}
-                onToggleDone={() => dispatch({ type: 'toggleDone', key: item.key })}
+                onCompleteSet={() => dispatch({ type: 'completeSet', key: item.key })}
+                onUndoSet={() => dispatch({ type: 'undoSet', key: item.key })}
+                onRestore={() => dispatch({ type: 'restore', key: item.key })}
                 onBusy={() => openSubstitutes(item)}
                 onDefer={() => dispatch({ type: 'defer', key: item.key })}
                 onSkip={() => dispatch({ type: 'skip', key: item.key })}

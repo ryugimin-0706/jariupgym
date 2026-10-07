@@ -136,7 +136,7 @@ function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
                       aria-pressed="true"
                       aria-label={`${exercise.name} 빼기`}
                       onClick={() => onRemove(addedItemId)}
-                      className="inline-flex min-h-11 shrink-0 items-center rounded-2xl bg-mint-500 px-4 text-sm font-semibold text-white active:bg-mint-600"
+                      className="inline-flex min-h-11 shrink-0 items-center rounded-2xl bg-mint-700 px-4 text-sm font-semibold text-white active:bg-mint-800"
                     >
                       ✓ 담음
                     </button>

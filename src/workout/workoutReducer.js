@@ -3,8 +3,10 @@
  *
  * items 배열 순서가 곧 화면 순서다.
  *  - 진행 중(pending) 운동이 위, 끝난(done/skipped) 운동이 아래
- *  - 완료·건너뜀 → 맨 아래로
- *  - 미루기·완료 취소 → 진행 중 운동들의 맨 뒤 (끝난 카드보다 위)
+ *  - 마지막 세트 완료·건너뜀 → 맨 아래로
+ *  - 미루기·완료 취소·되돌리기 → 진행 중 운동들의 맨 뒤 (끝난 카드보다 위)
+ *
+ * 세트는 한 세트씩 체크한다(doneSets). 대체해도 끝낸 세트 수는 이어간다.
  */
 import { makeId } from '../lib/routine.js';
 
@@ -17,6 +19,7 @@ import { makeId } from '../lib/routine.js';
  * @property {string} [customName]
  * @property {number} sets
  * @property {ItemStatus} status
+ * @property {number} doneSets             끝낸 세트 수 (0 ~ sets)
  * @property {string | null} originalExerciseId 대체된 경우 최초 운동 id
  * @property {string[]} swapChain          지금 운동 이전에 거쳐 온 운동 id들 (오래된 순, 최초 운동 포함)
  *
@@ -43,6 +46,7 @@ export function createWorkout(split) {
       ...(e.customName ? { customName: e.customName } : {}),
       sets: e.sets,
       status: 'pending',
+      doneSets: 0,
       originalExerciseId: null,
       swapChain: [],
     })),
@@ -90,11 +94,21 @@ export function swapChainOf(item) {
   return item.originalExerciseId ? [item.originalExerciseId] : [];
 }
 
+/**
+ * 끝낸 세트 수. doneSets가 없던 예전 세션은 완료면 전체 세트, 아니면 0.
+ * @param {WorkoutItem} item
+ */
+export function doneSetsOf(item) {
+  if (typeof item.doneSets === 'number') return item.doneSets;
+  return item.status === 'done' ? item.sets : 0;
+}
+
 export function progress(state) {
   const total = state.items.length;
   const done = state.items.filter((i) => i.status === 'done').length;
   const skipped = state.items.filter((i) => i.status === 'skipped').length;
-  return { total, done, skipped, finished: total > 0 && done + skipped === total };
+  const doneSets = state.items.reduce((n, i) => n + doneSetsOf(i), 0);
+  return { total, done, skipped, doneSets, finished: total > 0 && done + skipped === total };
 }
 
 /**
@@ -111,14 +125,40 @@ export function workoutReducer(state, action) {
   if (action.key && !item) return state;
 
   switch (action.type) {
-    // 완료 ⇄ 취소. 건너뛴 카드를 탭하면 다시 진행 중으로.
-    case 'toggleDone':
+    // 한 세트 완료. 마지막 세트면 운동 완료 → 맨 아래로.
+    case 'completeSet': {
+      if (!isPending(item)) return state;
+      const doneSets = Math.min(doneSetsOf(item) + 1, item.sets);
       return {
         ...state,
-        items: isPending(item)
-          ? moveToEnd(state.items, item.key, { status: 'done' })
-          : moveToPendingEnd(state.items, item.key, { status: 'pending' }),
+        items:
+          doneSets >= item.sets
+            ? moveToEnd(state.items, item.key, { status: 'done', doneSets: item.sets })
+            : state.items.map((i) => (i.key === item.key ? { ...i, doneSets } : i)),
       };
+    }
+
+    // 마지막 세트 취소. 완료된 운동이면 다시 진행 중으로(진행 중 운동들의 맨 뒤).
+    case 'undoSet': {
+      if (item.status === 'done') {
+        return {
+          ...state,
+          items: moveToPendingEnd(state.items, item.key, { status: 'pending', doneSets: item.sets - 1 }),
+        };
+      }
+      if (isPending(item) && doneSetsOf(item) > 0) {
+        return {
+          ...state,
+          items: state.items.map((i) => (i.key === item.key ? { ...i, doneSets: doneSetsOf(i) - 1 } : i)),
+        };
+      }
+      return state;
+    }
+
+    // 건너뛴 운동을 다시 진행 중으로 (끝낸 세트 수는 유지)
+    case 'restore':
+      if (item.status !== 'skipped') return state;
+      return { ...state, items: moveToPendingEnd(state.items, item.key, { status: 'pending' }) };
 
     case 'skip':
       return { ...state, items: moveToEnd(state.items, item.key, { status: 'skipped' }) };
@@ -133,7 +173,7 @@ export function workoutReducer(state, action) {
     case 'releaseBusy':
       return { ...state, busyEquipmentIds: state.busyEquipmentIds.filter((id) => id !== action.equipmentId) };
 
-    // 대체: 자리는 그대로, 변경 표시는 최초 운동 기준
+    // 대체: 자리는 그대로, 끝낸 세트 수 유지, 변경 표시는 최초 운동 기준
     case 'substitute':
       return {
         ...state,

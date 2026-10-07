@@ -46,7 +46,7 @@ export default function Welcome() {
             <p className="font-bold text-navy-900">바벨 벤치프레스</p>
             <p className="mt-0.5 text-xs text-slate-500">🛋️ 벤치프레스 · 가슴</p>
           </div>
-          <span className="demo-press rounded-xl bg-coral-50 px-3 py-2 text-sm font-semibold text-coral-700 ring-1 ring-coral-100">
+          <span className="demo-press rounded-xl bg-white px-3 py-2 text-sm font-semibold text-coral-700 ring-1 ring-coral-500">
             자리 없음
           </span>
         </div>

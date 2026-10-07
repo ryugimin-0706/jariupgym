@@ -5,6 +5,7 @@ import { TARGETS } from '../data/taxonomy.js';
 import Button from './Button.jsx';
 import { GuideButton } from './ExerciseGuide.jsx';
 import Tag from './Tag.jsx';
+import { doneSetsOf } from '../workout/workoutReducer.js';
 
 /**
  * 화면 4 운동 카드.
@@ -15,7 +16,9 @@ import Tag from './Tag.jsx';
  *   busy?: boolean,          기구가 지금 사용 중인지
  *   canMarkBusy: boolean,    "자리 없음" 가능 여부 (맨몸·직접 입력은 false)
  *   highlight?: boolean,
- *   onToggleDone: () => void,
+ *   onCompleteSet: () => void, 한 세트 완료 (마지막 세트면 운동 완료)
+ *   onUndoSet: () => void,     마지막 세트 취소 (완료 카드를 탭해도 동일)
+ *   onRestore: () => void,     건너뛴 운동 되돌리기
  *   onBusy: () => void,
  *   onDefer: () => void,
  *   onSkip: () => void,
@@ -29,7 +32,9 @@ export default function ExerciseCard({
   busy,
   canMarkBusy,
   highlight,
-  onToggleDone,
+  onCompleteSet,
+  onUndoSet,
+  onRestore,
   onBusy,
   onDefer,
   onSkip,
@@ -41,14 +46,15 @@ export default function ExerciseCard({
   const name = exercise?.name ?? item.customName;
   const equipment = exercise ? EQUIPMENT_BY_ID[exercise.equipmentId] : null;
   const original = item.originalExerciseId ? EXERCISES_BY_ID[item.originalExerciseId] : null;
+  const doneSets = doneSetsOf(item);
 
-  // 끝난 카드: 흐리게, 탭하면 취소
+  // 끝난 카드: 흐리게. 완료 카드를 탭하면 마지막 세트 취소, 건너뛴 카드를 탭하면 되돌리기
   if (item.status !== 'pending') {
     const done = item.status === 'done';
     return (
       <button
         type="button"
-        onClick={onToggleDone}
+        onClick={done ? onUndoSet : onRestore}
         className="flex min-h-14 w-full items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-left opacity-60 transition active:opacity-80"
       >
         <span
@@ -60,8 +66,8 @@ export default function ExerciseCard({
           {done ? '✓' : '–'}
         </span>
         <span className={`flex-1 font-medium ${done ? 'line-through decoration-slate-400' : ''}`}>{name}</span>
-        {!done && <Tag>건너뜀</Tag>}
-        <span className="text-xs text-slate-400">{done ? '탭하면 취소' : '탭하면 되돌리기'}</span>
+        {!done && <Tag>건너뜀{doneSets > 0 && ` · ${doneSets}/${item.sets}세트`}</Tag>}
+        <span className="text-xs text-slate-400">{done ? `${item.sets}세트 · 탭하면 취소` : '탭하면 되돌리기'}</span>
       </button>
     );
   }
@@ -72,30 +78,27 @@ export default function ExerciseCard({
         highlight ? 'animate-swap border-mint-500' : 'border-slate-100'
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          {original && (
-            <p className="mb-1 text-xs font-medium text-mint-700">
-              <span className="text-slate-400 line-through">{original.name}</span> → {name}
-            </p>
+      {original && (
+        <p className="mb-1 text-xs font-medium text-mint-700">
+          <span className="text-slate-400 line-through">{original.name}</span> → {name}
+        </p>
+      )}
+      <div className="flex items-center">
+        <h3 className="text-lg leading-snug font-bold">{name}</h3>
+        <GuideButton exerciseId={item.exerciseId} onOpen={onGuide} />
+      </div>
+      {/* 기구·부위 줄 오른쪽에 세트 진행 (운동 이름이 한 줄을 다 쓰도록) */}
+      <div className="-mt-1 flex items-center justify-between gap-3">
+        <p className="min-w-0 truncate text-sm text-slate-500">
+          {exercise ? (
+            <>
+              {equipment.emoji} {equipment.name} · {TARGETS[exercise.target].label}
+            </>
+          ) : (
+            '직접 입력한 운동'
           )}
-          <div className="flex items-center">
-            <h3 className="text-lg leading-snug font-bold">{name}</h3>
-            <GuideButton exerciseId={item.exerciseId} onOpen={onGuide} />
-          </div>
-          <p className="mt-1 text-sm text-slate-500">
-            {exercise ? (
-              <>
-                {equipment.emoji} {equipment.name} · {TARGETS[exercise.target].label}
-              </>
-            ) : (
-              '직접 입력한 운동'
-            )}
-          </p>
-        </div>
-        <span className="shrink-0 rounded-full bg-navy-50 px-3 py-1 text-sm font-semibold text-navy-700">
-          {item.sets}세트
-        </span>
+        </p>
+        <SetDots done={doneSets} total={item.sets} onUndo={onUndoSet} />
       </div>
 
       {(!exercise || !owned || busy) && (
@@ -118,8 +121,8 @@ export default function ExerciseCard({
       )}
 
       <div className="mt-4 flex gap-2">
-        <Button variant="mint" className="flex-1" onClick={onToggleDone}>
-          ✓ 완료
+        <Button className="flex-1" onClick={onCompleteSet}>
+          ✓ {item.sets > 1 ? `${doneSets + 1}세트 완료` : '완료'}
         </Button>
         {canMarkBusy ? (
           <Button variant="coral" className="flex-1" onClick={onBusy}>
@@ -162,5 +165,36 @@ export default function ExerciseCard({
         </div>
       )}
     </article>
+  );
+}
+
+/**
+ * 세트 진행 표시: ●●○ 2/3세트. 한 세트 이상 끝냈으면 탭해서 마지막 세트를 취소할 수 있다.
+ */
+function SetDots({ done, total, onUndo }) {
+  const dots = (
+    <>
+      <span className="flex gap-1" aria-hidden>
+        {Array.from({ length: total }, (_, i) => (
+          <span key={i} className={`size-2.5 rounded-full ${i < done ? 'bg-mint-500' : 'bg-slate-200'}`} />
+        ))}
+      </span>
+      <span className="text-sm font-semibold text-navy-700">
+        <span className={done ? 'text-mint-700' : ''}>{done}</span>/{total}세트
+      </span>
+    </>
+  );
+  if (done === 0) {
+    return <span className="flex min-h-11 shrink-0 items-center gap-2 px-1">{dots}</span>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onUndo}
+      aria-label={`${done}세트 완료됨. 마지막 세트 취소`}
+      className="-mr-2 flex min-h-11 shrink-0 items-center gap-2 rounded-full px-2 active:bg-slate-100"
+    >
+      {dots}
+    </button>
   );
 }
