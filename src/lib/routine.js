@@ -89,3 +89,49 @@ export function summarizeSplit(split) {
     .map((b) => b.name);
   return { count: split.exercises.length, bodyParts };
 }
+
+/** 분할 이름 칩 (화면 2-A). 누르면 "{칩} 하는날"로 들어간다. */
+export const SPLIT_NAME_CHIPS = ['가슴', '등', '하체', '어깨', '팔', '상체', '전신'];
+export const splitNameFromChip = (chip) => `${chip} 하는날`;
+
+export const MIN_SETS = 1;
+export const MAX_SETS = 10;
+
+/**
+ * 배열에서 index 항목을 위(-1)/아래(+1)로 한 칸 옮긴 새 배열. 끝에서는 그대로.
+ * @template T
+ * @param {T[]} list
+ * @param {number} index
+ * @param {-1 | 1} dir
+ * @returns {T[]}
+ */
+export function moveItem(list, index, dir) {
+  const to = index + dir;
+  if (to < 0 || to >= list.length) return list;
+  const next = [...list];
+  [next[index], next[to]] = [next[to], next[index]];
+  return next;
+}
+
+/**
+ * 운동 담기 시트를 처음 열 때 보여줄 부위 탭: 분할 이름에 부위 이름이 있으면 그 탭, 없으면 가슴.
+ * 예: "등 하는날" → back, "상체 하는날" → chest
+ * @param {string} splitName
+ */
+export function guessBodyPart(splitName) {
+  return BODY_PARTS.find((b) => splitName.includes(b.name))?.id ?? BODY_PARTS[0].id;
+}
+
+/**
+ * 저장 가능 여부: 분할 1개 이상, 모든 분할에 이름과 운동 1개 이상.
+ * @param {import('./storage.js').Split[]} splits
+ * @returns {{ ok: boolean, reason: string | null }}
+ */
+export function validateRoutineDraft(splits) {
+  if (splits.length === 0) return { ok: false, reason: '분할을 1개 이상 만들어 주세요' };
+  const unnamed = splits.find((s) => !s.name.trim());
+  if (unnamed) return { ok: false, reason: '이름이 없는 분할이 있어요' };
+  const empty = splits.filter((s) => s.exercises.length === 0);
+  if (empty.length) return { ok: false, reason: `운동을 담아 주세요: ${empty.map((s) => s.name.trim()).join(', ')}` };
+  return { ok: true, reason: null };
+}

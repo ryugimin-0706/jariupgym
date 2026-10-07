@@ -17,8 +17,7 @@ export default function RoutineChoice() {
           emoji="📋"
           title="내 루틴이 있어요"
           desc="평소 하던 루틴을 분할별로 등록해요"
-          // 7단계에서 화면 2-A로 연결
-          disabledHint="7단계에서 연결"
+          onClick={() => navigate('/onboarding/custom')}
         />
         <ChoiceCard
           emoji="✨"

@@ -62,8 +62,13 @@ export default function RecommendedRoutine() {
           <Button size="lg" full disabled={routineSplits.length === 0} onClick={startAsIs}>
             이대로 시작하기
           </Button>
-          <Button variant="outline" full disabled>
-            수정해서 쓰기 <span className="text-xs font-normal text-slate-400">(7단계에서 연결)</span>
+          <Button
+            variant="outline"
+            full
+            disabled={routineSplits.length === 0}
+            onClick={() => navigate('/onboarding/custom', { state: { draft: routineSplits } })}
+          >
+            수정해서 쓰기
           </Button>
         </BottomCTA>
       }

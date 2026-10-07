@@ -157,7 +157,7 @@ export default function Home() {
         ) : (
           <ul className="-mx-2">
             <SettingsItem emoji="🏋️" label="내 헬스장 기구 수정" onClick={() => navigate('/settings/equipment')} />
-            <SettingsItem emoji="📝" label="내 루틴 수정" hint="7단계에서 연결" disabled />
+            <SettingsItem emoji="📝" label="내 루틴 수정" onClick={() => navigate('/settings/routine')} />
             <SettingsItem emoji="🗑️" label="데이터 초기화" danger onClick={() => setConfirmReset(true)} />
           </ul>
         )}
