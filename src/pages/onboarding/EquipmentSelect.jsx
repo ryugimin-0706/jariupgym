@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
 import Button from '../../components/Button.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
-import { SELECTABLE_EQUIPMENT } from '../../data/equipment.js';
+import { EQUIPMENT_BY_ID, EQUIPMENT_GROUPS, SELECTABLE_EQUIPMENT } from '../../data/equipment.js';
 import { useGym } from '../../hooks/useAppData.jsx';
 
 const ALL_IDS = SELECTABLE_EQUIPMENT.map((e) => e.id);
@@ -26,6 +26,17 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
       const nextSet = new Set(prev);
       if (nextSet.has(id)) nextSet.delete(id);
       else nextSet.add(id);
+      return nextSet;
+    });
+
+  /** 묶음 전체 켜기/끄기 */
+  const setGroup = (ids, on) =>
+    setSelected((prev) => {
+      const nextSet = new Set(prev);
+      for (const id of ids) {
+        if (on) nextSet.add(id);
+        else nextSet.delete(id);
+      }
       return nextSet;
     });
 
@@ -89,41 +100,70 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
         </p>
       )}
 
-      <ul className="grid grid-cols-2 gap-3">
-        {SELECTABLE_EQUIPMENT.map((eq) => {
-          const on = selected.has(eq.id);
+      <div className="space-y-6">
+        {EQUIPMENT_GROUPS.map((group) => {
+          const count = group.equipmentIds.filter((id) => selected.has(id)).length;
+          const allOn = count === group.equipmentIds.length;
           return (
-            <li key={eq.id}>
-              <button
-                type="button"
-                aria-pressed={on}
-                onClick={() => toggle(eq.id)}
-                className={`relative flex h-full min-h-24 w-full flex-col items-start justify-between rounded-2xl border-2 p-3.5 text-left transition active:scale-[0.98] ${
-                  on ? 'border-mint-500 bg-mint-50' : 'border-slate-100 bg-white'
-                }`}
-              >
-                <span className={`text-3xl transition ${on ? '' : 'opacity-50 grayscale'}`} aria-hidden>
-                  {eq.emoji}
-                </span>
-                <span className="mt-2">
-                  <span className={`block text-sm leading-tight font-bold ${on ? 'text-navy-900' : 'text-slate-500'}`}>
-                    {eq.name}
+            <section key={group.id} aria-labelledby={`group-${group.id}`}>
+              <div className="mb-2 flex items-center justify-between">
+                <h2 id={`group-${group.id}`} className="font-bold text-navy-700">
+                  {group.name}{' '}
+                  <span className="text-sm font-semibold text-slate-400">
+                    <span className={count ? 'text-mint-600' : ''}>{count}</span>/{group.equipmentIds.length}
                   </span>
-                  {eq.desc && <span className="mt-0.5 block text-xs text-slate-400">{eq.desc}</span>}
-                </span>
-                <span
-                  className={`absolute top-3 right-3 flex size-6 items-center justify-center rounded-full text-xs font-bold transition ${
-                    on ? 'bg-mint-500 text-white' : 'border-2 border-slate-200 text-transparent'
-                  }`}
-                  aria-hidden
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setGroup(group.equipmentIds, !allOn)}
+                  className="-mr-2 min-h-11 rounded-full px-3 text-sm font-semibold text-mint-700 active:bg-mint-50"
                 >
-                  ✓
-                </span>
-              </button>
-            </li>
+                  {allOn ? '모두 해제' : '모두 선택'}
+                </button>
+              </div>
+              <ul className="grid grid-cols-2 gap-3">
+                {group.equipmentIds.map((id) => (
+                  <li key={id}>
+                    <EquipmentCard eq={EQUIPMENT_BY_ID[id]} on={selected.has(id)} onToggle={() => toggle(id)} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           );
         })}
-      </ul>
+      </div>
     </MobileLayout>
+  );
+}
+
+/** 기구 카드: 이모지, 이름, 주로 쓰는 부위(머신) 또는 구성 설명 */
+function EquipmentCard({ eq, on, onToggle }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={onToggle}
+      className={`relative flex h-full min-h-24 w-full flex-col items-start justify-between rounded-2xl border-2 p-3.5 text-left transition active:scale-[0.98] ${
+        on ? 'border-mint-500 bg-mint-50' : 'border-slate-100 bg-white'
+      }`}
+    >
+      <span className={`text-3xl transition ${on ? '' : 'opacity-50 grayscale'}`} aria-hidden>
+        {eq.emoji}
+      </span>
+      <span className="mt-2">
+        <span className={`block text-sm leading-tight font-bold ${on ? 'text-navy-900' : 'text-slate-500'}`}>
+          {eq.name}
+        </span>
+        {(eq.hint ?? eq.desc) && <span className="mt-0.5 block text-xs text-slate-400">{eq.hint ?? eq.desc}</span>}
+      </span>
+      <span
+        className={`absolute top-3 right-3 flex size-6 items-center justify-center rounded-full text-xs font-bold transition ${
+          on ? 'bg-mint-500 text-white' : 'border-2 border-slate-200 text-transparent'
+        }`}
+        aria-hidden
+      >
+        ✓
+      </span>
+    </button>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EQUIPMENT_BY_ID, SELECTABLE_EQUIPMENT } from '../data/equipment.js';
+import { EQUIPMENT_BY_ID, EQUIPMENT_GROUPS, SELECTABLE_EQUIPMENT } from '../data/equipment.js';
 import { EXERCISES, EXERCISES_BY_ID } from '../data/exercises.js';
 import { PRESET_ROUTINES } from '../data/presetRoutines.js';
 import { PATTERNS, TARGETS } from '../data/taxonomy.js';
@@ -33,6 +33,11 @@ describe('데이터 무결성', () => {
     for (const eq of SELECTABLE_EQUIPMENT) {
       expect(EXERCISES.some((e) => e.equipmentId === eq.id), eq.id).toBe(true);
     }
+  });
+
+  it('선택할 수 있는 모든 기구가 기구 등록 묶음 중 정확히 하나에 들어 있다', () => {
+    const grouped = EQUIPMENT_GROUPS.flatMap((g) => g.equipmentIds);
+    expect([...grouped].sort()).toEqual(SELECTABLE_EQUIPMENT.map((e) => e.id).sort());
   });
 
   it('추천 루틴의 모든 운동이 운동 목록에 있다', () => {
