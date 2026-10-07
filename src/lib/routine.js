@@ -1,5 +1,6 @@
 /** 루틴 관련 순수 함수 */
 import { EXERCISES_BY_ID } from '../data/exercises.js';
+import { BODY_PARTS, TARGETS } from '../data/taxonomy.js';
 import { DEFAULT_SETS, PRESET_ROUTINES } from '../data/presetRoutines.js';
 import { getSubstitutes, isOwned } from './recommend.js';
 
@@ -67,4 +68,24 @@ export function adaptPresetRoutines(ownedEquipmentIds, presets = PRESET_ROUTINES
       tooFew: exercises.length < MIN_EXERCISES_PER_SPLIT,
     };
   });
+}
+
+/**
+ * 홈 분할 카드용 요약: 운동 개수, 주요 부위(많은 순, 같으면 가슴·등·하체·어깨·팔 순).
+ * 직접 입력한 운동은 부위를 모르므로 개수에만 포함한다.
+ * @param {import('./storage.js').Split} split
+ * @returns {{ count: number, bodyParts: string[] }}
+ */
+export function summarizeSplit(split) {
+  const counts = new Map();
+  for (const e of split.exercises) {
+    const exercise = e.exerciseId ? EXERCISES_BY_ID[e.exerciseId] : null;
+    if (!exercise) continue;
+    const part = TARGETS[exercise.target].bodyPart;
+    counts.set(part, (counts.get(part) ?? 0) + 1);
+  }
+  const bodyParts = BODY_PARTS.filter((b) => counts.has(b.id))
+    .sort((a, b) => counts.get(b.id) - counts.get(a.id))
+    .map((b) => b.name);
+  return { count: split.exercises.length, bodyParts };
 }

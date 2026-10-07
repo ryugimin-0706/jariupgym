@@ -32,7 +32,8 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
   const save = () => {
     // 데이터 순서대로 저장
     setGym(ALL_IDS.filter((id) => selected.has(id)));
-    navigate(next);
+    // 설정에서 저장하면 기구 화면이 기록에 남지 않게 (뒤로가기 시 다시 안 나오도록)
+    navigate(next, { replace: mode === 'settings' });
   };
 
   return (
