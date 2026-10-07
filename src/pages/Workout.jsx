@@ -9,6 +9,7 @@ import Toast, { useToast } from '../components/Toast.jsx';
 import { EQUIPMENT_BY_ID } from '../data/equipment.js';
 import { EXERCISES_BY_ID } from '../data/exercises.js';
 import { useGym } from '../hooks/useAppData.jsx';
+import { loadLastLogs } from '../lib/storage.js';
 import { canMarkBusy, isOwned, swapToastMessage } from '../lib/recommend.js';
 import { useWorkout } from '../workout/WorkoutContext.jsx';
 import { progress } from '../workout/workoutReducer.js';
@@ -23,6 +24,8 @@ export default function Workout() {
   const navigate = useNavigate();
   const { workout, dispatch } = useWorkout();
   const { equipmentIds, addEquipment } = useGym();
+  /** 운동별 마지막 기록 ("지난 기록 불러오기"). 운동을 끝내면 완료 화면에서 갱신된다. */
+  const [lastLogs] = useState(loadLastLogs);
   const { toast, show: showToast } = useToast();
   /** 바텀시트 대상: 'busy' = 자리 없음, 'missing' = 내 헬스장에 없는 기구 */
   const [sheet, setSheet] = useState(/** @type {{ key: string, reason: 'busy' | 'missing' } | null} */ (null));
@@ -154,8 +157,16 @@ export default function Workout() {
                 busy={exercise ? workout.busyEquipmentIds.includes(exercise.equipmentId) : false}
                 canMarkBusy={canMarkBusy(item.exerciseId)}
                 highlight={workout.lastSwappedKey === item.key}
-                onCompleteSet={() => dispatch({ type: 'completeSet', key: item.key })}
+                hasRecord={Boolean(item.exerciseId && lastLogs[item.exerciseId]?.length)}
+                onToggleSet={(index) => dispatch({ type: 'toggleSet', key: item.key, index })}
+                onUpdateSet={(index, patch) => dispatch({ type: 'updateSet', key: item.key, index, ...patch })}
                 onUndoSet={() => dispatch({ type: 'undoSet', key: item.key })}
+                onAddSet={() => dispatch({ type: 'addSet', key: item.key })}
+                onRemoveSet={() => dispatch({ type: 'removeSet', key: item.key })}
+                onLoad={() => {
+                  dispatch({ type: 'loadSets', key: item.key, rows: lastLogs[item.exerciseId] });
+                  showToast('지난 기록을 불러왔어요');
+                }}
                 onRestore={() => dispatch({ type: 'restore', key: item.key })}
                 onBusy={() => openSubstitutes(item)}
                 onDefer={() => dispatch({ type: 'defer', key: item.key })}

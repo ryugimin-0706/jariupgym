@@ -8,6 +8,7 @@ export const KEYS = {
   gym: 'jariupgym:gym',
   routine: 'jariupgym:routine',
   workout: 'jariupgym:workout', // sessionStorage
+  lastLogs: 'jariupgym:lastLogs',
 };
 
 export const ROUTINE_VERSION = 1;
@@ -105,10 +106,24 @@ export function clearWorkout() {
   remove('session', KEYS.workout);
 }
 
+// ── 운동별 마지막 기록 ("불러오기"용, 전체 기록·통계는 남기지 않음) ──
+
+/** @returns {Record<string, { weight: number | null, reps: number | null }[]>} */
+export function loadLastLogs() {
+  const data = read('local', KEYS.lastLogs);
+  return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+}
+
+/** @param {Record<string, { weight: number | null, reps: number | null }[]>} logs */
+export function saveLastLogs(logs) {
+  return write('local', KEYS.lastLogs, logs);
+}
+
 // ── 데이터 초기화 ──────────────────────────────
 
 export function clearAll() {
   remove('local', KEYS.gym);
   remove('local', KEYS.routine);
+  remove('local', KEYS.lastLogs);
   clearWorkout();
 }

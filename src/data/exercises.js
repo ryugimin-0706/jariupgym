@@ -5,6 +5,7 @@
  * @property {string} equipmentId  EQUIPMENT id
  * @property {string} target       TARGETS id
  * @property {string} pattern      PATTERNS id
+ * @property {'sec'} [unit]        횟수 대신 시간(초)으로 기록하는 운동 (플랭크)
  */
 
 // 배열 순서 = 점수·프리웨이트 여부까지 같을 때의 우선순위 (PRD 5-2 순서 유지)
@@ -116,7 +117,7 @@ export const EXERCISES = [
   { id: 'roman_chair_sit_up', name: '로만 체어 싯업', equipmentId: 'romanchair', target: 'abs', pattern: 'crunch' },
   { id: 'hanging_leg_raise', name: '행잉 레그 레이즈', equipmentId: 'pullupbar', target: 'abs', pattern: 'leg_raise' },
   { id: 'lying_leg_raise', name: '라잉 레그 레이즈', equipmentId: 'bodyweight', target: 'abs', pattern: 'leg_raise' },
-  { id: 'plank', name: '플랭크', equipmentId: 'bodyweight', target: 'abs', pattern: 'brace' },
+  { id: 'plank', name: '플랭크', equipmentId: 'bodyweight', target: 'abs', pattern: 'brace', unit: 'sec' },
   { id: 'barbell_rollout', name: '바벨 롤아웃', equipmentId: 'barbell', target: 'abs', pattern: 'brace' },
 ];
 
@@ -125,3 +126,9 @@ export const EXERCISES_BY_ID = Object.fromEntries(EXERCISES.map((e) => [e.id, e]
 
 /** 데이터 순서(동점 처리용) */
 export const EXERCISE_INDEX = Object.fromEntries(EXERCISES.map((e, i) => [e.id, i]));
+
+/** 세트 기록 단위: 대부분 횟수, 플랭크는 초. 직접 입력한 운동은 횟수. */
+export const unitOf = (exerciseId) => (exerciseId && EXERCISES_BY_ID[exerciseId]?.unit) || 'reps';
+export const UNIT_LABEL = { reps: '회', sec: '초' };
+/** 새 세트의 기본 횟수/시간 */
+export const DEFAULT_COUNT = { reps: 10, sec: 30 };
