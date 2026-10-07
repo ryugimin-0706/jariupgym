@@ -61,17 +61,21 @@ export default function RecommendedRoutine() {
       header={<PageHeader step="2 / 2" />}
       bottom={
         <BottomCTA>
-          <Button size="lg" full disabled={routineSplits.length === 0} onClick={startAsIs}>
-            이대로 시작하기
-          </Button>
-          <Button
-            variant="outline"
-            full
-            disabled={routineSplits.length === 0}
-            onClick={() => navigate('/onboarding/custom', { state: { draft: routineSplits } })}
-          >
-            수정해서 쓰기
-          </Button>
+          {/* 왼쪽 보조(수정하기), 오른쪽 주 버튼 — 기구 선택 화면과 같은 배치 */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              className="basis-1/3"
+              disabled={routineSplits.length === 0}
+              onClick={() => navigate('/onboarding/custom', { state: { draft: routineSplits } })}
+            >
+              수정하기
+            </Button>
+            <Button size="lg" className="basis-2/3" disabled={routineSplits.length === 0} onClick={startAsIs}>
+              이대로 시작하기
+            </Button>
+          </div>
         </BottomCTA>
       }
     >
@@ -166,7 +170,7 @@ export default function RecommendedRoutine() {
                   ) : (
                     split.tooFew && (
                       <p className="mt-2 rounded-xl bg-coral-50 px-3 py-2 text-xs text-coral-700">
-                        운동이 {split.exercises.length}개뿐이에요. &ldquo;수정해서 쓰기&rdquo;로 운동을 더 담아보세요.
+                        운동이 {split.exercises.length}개뿐이에요. &ldquo;수정하기&rdquo;로 운동을 더 담아보세요.
                       </p>
                     )
                   )}

@@ -26,7 +26,7 @@ import ExercisePicker from './ExercisePicker.jsx';
 
 /**
  * @param {{ mode?: 'onboarding' | 'settings' }} props
- * 시작 값: 설정이면 저장된 루틴, 2-B "수정해서 쓰기"에서 왔으면 넘겨받은 분할, 아니면 빈 루틴
+ * 시작 값: 설정이면 저장된 루틴, 2-B "수정하기"에서 왔으면 넘겨받은 분할, 아니면 빈 루틴
  */
 export default function RoutineEditor({ mode = 'onboarding' }) {
   const navigate = useNavigate();

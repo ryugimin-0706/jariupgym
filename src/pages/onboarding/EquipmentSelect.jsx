@@ -68,9 +68,21 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
       }
       bottom={
         <BottomCTA>
-          <Button size="lg" full disabled={selected.size === 0} onClick={save}>
-            {selected.size === 0 ? '기구를 1개 이상 골라주세요' : mode === 'settings' ? '저장' : '다음'}
-          </Button>
+          {/* 스크롤해도 전체 선택 개수가 보이도록 하단에 둔다 */}
+          <div className="flex items-center gap-4">
+            <p className="min-w-0 shrink-0" aria-live="polite">
+              <span className="block text-lg leading-tight font-bold text-navy-700">
+                <span className={selected.size ? 'text-mint-600' : 'text-slate-400'}>{selected.size}</span>
+                <span className="text-slate-400"> / {ALL_IDS.length}개</span>
+              </span>
+              <span className={`block text-xs ${selected.size ? 'text-slate-500' : 'text-coral-700'}`}>
+                {selected.size ? '선택했어요' : '1개 이상 골라주세요'}
+              </span>
+            </p>
+            <Button size="lg" className="flex-1" disabled={selected.size === 0} onClick={save}>
+              {mode === 'settings' ? '저장' : '다음'}
+            </Button>
+          </div>
         </BottomCTA>
       }
     >
@@ -84,9 +96,7 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
       <p className="mt-2 text-sm text-slate-500">맨몸 운동은 기구 없이 언제든 할 수 있어요.</p>
 
       <div className="mt-6 mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold text-navy-700">
-          <span className="text-mint-600">{selected.size}</span> / {ALL_IDS.length}개 선택
-        </p>
+        <p className="text-sm text-slate-500">있는 기구를 모두 골라주세요</p>
         <Button
           variant={allSelected ? 'ghost' : 'outline'}
           onClick={() => setSelected(allSelected ? new Set() : new Set(ALL_IDS))}
