@@ -23,6 +23,18 @@ describe('데이터 무결성', () => {
     expect(new Set(EXERCISES.map((e) => e.id)).size).toBe(EXERCISES.length);
   });
 
+  it('모든 세부 타깃에 운동이 2개 이상 있다 (대체 후보가 생길 수 있도록)', () => {
+    for (const target of Object.keys(TARGETS)) {
+      expect(EXERCISES.filter((e) => e.target === target).length, target).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('선택할 수 있는 모든 기구를 쓰는 운동이 있다', () => {
+    for (const eq of SELECTABLE_EQUIPMENT) {
+      expect(EXERCISES.some((e) => e.equipmentId === eq.id), eq.id).toBe(true);
+    }
+  });
+
   it('추천 루틴의 모든 운동이 운동 목록에 있다', () => {
     for (const preset of PRESET_ROUTINES) {
       for (const id of preset.exerciseIds) expect(EXERCISES_BY_ID[id], id).toBeDefined();
@@ -37,11 +49,11 @@ describe('시나리오 A — 가슴 하는날, 바벨 벤치프레스 자리 없
     excludeExerciseIds: ['barbell_bench_press', 'incline_dumbbell_press', 'cable_pushdown'],
   };
 
-  it('덤벨 벤치프레스 → 스미스 벤치프레스 → 체스트프레스 순으로 추천한다 (동점이면 프리웨이트 우선)', () => {
+  it('덤벨 벤치프레스 → 인클라인 바벨 벤치프레스 → 스미스 벤치프레스 순으로 추천한다 (동점이면 프리웨이트 우선)', () => {
     expect(ids(getSubstitutes('barbell_bench_press', ctx))).toEqual([
       'dumbbell_bench_press',
+      'incline_barbell_bench_press',
       'smith_bench_press',
-      'chest_press',
     ]);
   });
 
@@ -72,7 +84,7 @@ describe('후보 조건', () => {
     const result = ids(
       getSubstitutes('barbell_bench_press', { ownedEquipmentIds: ALL_OWNED, busyEquipmentIds: ['bench', 'dumbbell'] }),
     );
-    expect(result).toEqual(['smith_bench_press', 'chest_press', 'push_up']);
+    expect(result).toEqual(['incline_barbell_bench_press', 'smith_bench_press', 'chest_press']);
   });
 
   it('오늘 루틴에 있는 운동과 원래 운동은 제외한다', () => {
@@ -126,7 +138,8 @@ describe('추천 이유 문구', () => {
     expect(buildReason(ex.barbell_back_squat, ex.smith_squat)).toBe(
       '같은 허벅지 앞 운동 · 비어 있는 스미스 머신 사용 · 비슷한 스쿼트 동작',
     );
-    expect(swapToastMessage('leg_curl')).toBe('루틴을 바꿨어요. 같은 허벅지 뒤·엉덩이 운동이에요 💪');
+    expect(swapToastMessage('leg_curl')).toBe('루틴을 바꿨어요. 같은 허벅지 뒤 운동이에요 💪');
+    expect(swapToastMessage('hip_thrust_machine')).toBe('루틴을 바꿨어요. 같은 엉덩이 운동이에요 💪');
   });
 });
 
@@ -167,6 +180,19 @@ describe('시나리오 B — 스쿼트랙 해제 후 추천 루틴', () => {
   });
 });
 
+describe('추천 루틴 — 복근 분할', () => {
+  it('기구가 다 있으면 그대로', () => {
+    const abs = adaptPresetRoutines(ALL_OWNED).find((s) => s.name === '복근');
+    expect(abs.exercises.map((e) => e.exerciseId)).toEqual(['cable_crunch', 'hanging_leg_raise', 'roman_chair_sit_up', 'plank']);
+  });
+
+  it('기구가 없으면 맨몸 복근 운동으로 바뀐다', () => {
+    const abs = adaptPresetRoutines([]).find((s) => s.name === '복근');
+    expect(abs.exercises.map((e) => e.exerciseId)).toEqual(['crunch', 'lying_leg_raise', 'plank']);
+    expect(abs.droppedExerciseIds).toEqual(['roman_chair_sit_up']);
+  });
+});
+
 describe('추천 루틴 — 대체 후보가 없을 때', () => {
   it('대체 후보가 없으면 빼고, 2개 미만이면 tooFew', () => {
     // 레그프레스만 있는 헬스장
@@ -184,5 +210,23 @@ describe('추천 루틴 — 대체 후보가 없을 때', () => {
     const chest = adaptPresetRoutines([]).find((s) => s.name === '가슴·삼두');
     expect(chest.exercises.map((e) => e.exerciseId)).toEqual(['push_up', 'bench_dips']);
     expect(chest.tooFew).toBe(false);
+  });
+});
+
+describe('세부 타깃 분리 (엉덩이·종아리)', () => {
+  it('종아리 운동은 스쿼트의 대체로 나오지 않는다', () => {
+    const result = ids(getSubstitutes('barbell_back_squat', { ownedEquipmentIds: ALL_OWNED, busyEquipmentIds: ['rack'] }, 10));
+    expect(result.some((id) => EXERCISES_BY_ID[id].target === 'calves')).toBe(false);
+  });
+
+  it('힙 쓰러스트 머신이 사용 중이면 같은 힙 쓰러스트 동작을 먼저 추천한다', () => {
+    const result = ids(getSubstitutes('hip_thrust_machine', { ownedEquipmentIds: ALL_OWNED, busyEquipmentIds: ['hipthrust'] }));
+    expect(result).toEqual(['barbell_hip_thrust', 'glute_bridge', 'kettlebell_swing']);
+  });
+
+  it('복근: 크런치 → 같은 크런치 동작 먼저', () => {
+    const [first] = getSubstitutes('cable_crunch', { ownedEquipmentIds: ALL_OWNED, busyEquipmentIds: ['cable'] });
+    expect(first.exercise.id).toBe('roman_chair_sit_up');
+    expect(first.reason).toBe('같은 복근 운동 · 비어 있는 로만 체어 사용 · 비슷한 크런치 동작');
   });
 });

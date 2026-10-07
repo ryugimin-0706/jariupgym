@@ -10,6 +10,7 @@ export const BODY_PARTS = [
   { id: 'legs', name: '하체' },
   { id: 'shoulders', name: '어깨' },
   { id: 'arms', name: '팔' },
+  { id: 'abs', name: '복근' },
 ];
 
 /**
@@ -23,10 +24,14 @@ export const TARGETS = {
   chest: { label: '가슴', bodyPart: 'chest' },
   back: { label: '등', bodyPart: 'back' },
   quads: { label: '허벅지 앞', bodyPart: 'legs' },
-  hamstrings: { label: '허벅지 뒤·엉덩이', bodyPart: 'legs' },
+  hamstrings: { label: '허벅지 뒤', bodyPart: 'legs' },
+  glutes: { label: '엉덩이', bodyPart: 'legs' },
+  adductors: { label: '허벅지 안쪽', bodyPart: 'legs' },
+  calves: { label: '종아리', bodyPart: 'legs' },
   shoulders: { label: '어깨', bodyPart: 'shoulders' },
   biceps: { label: '팔 앞쪽', bodyPart: 'arms' },
   triceps: { label: '팔 뒤쪽', bodyPart: 'arms' },
+  abs: { label: '복근', bodyPart: 'abs' },
 };
 
 /** 동작 패턴. 'isolation'은 추천 이유에서 동작 문구를 생략한다. */
@@ -39,6 +44,11 @@ export const PATTERNS = {
   lunge: '런지',
   hinge: '힌지',
   vertical_push: '수직 밀기',
+  pullover: '풀오버',
+  hip_thrust: '힙 쓰러스트',
+  crunch: '크런치',
+  leg_raise: '레그 레이즈',
+  brace: '버티기',
   isolation: '고립',
 };
 

@@ -1,4 +1,4 @@
-/** PRD 5-3 추천 루틴 (화면 2-B). 모든 운동 기본 3세트. */
+/** PRD 5-3 추천 루틴 (화면 2-B) + 복근(DECISIONS.md). 모든 운동 기본 3세트. */
 export const DEFAULT_SETS = 3;
 
 export const PRESET_ROUTINES = [
@@ -32,5 +32,10 @@ export const PRESET_ROUTINES = [
       'cable_lateral_raise',
       'machine_shoulder_press',
     ],
+  },
+  {
+    id: 'preset_abs',
+    name: '복근',
+    exerciseIds: ['cable_crunch', 'hanging_leg_raise', 'roman_chair_sit_up', 'plank'],
   },
 ];
