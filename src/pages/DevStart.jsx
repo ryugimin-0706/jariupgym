@@ -2,11 +2,9 @@
 import { useNavigate } from 'react-router';
 import Button from '../components/Button.jsx';
 import MobileLayout from '../components/MobileLayout.jsx';
-import { SELECTABLE_EQUIPMENT } from '../data/equipment.js';
+import { EQUIPMENT_BY_ID } from '../data/equipment.js';
 import { useGym } from '../hooks/useAppData.jsx';
 import { useWorkout } from '../workout/WorkoutContext.jsx';
-
-const ALL_OWNED = SELECTABLE_EQUIPMENT.map((e) => e.id);
 
 /** 샘플 "가슴 하는날": 시나리오 A + 맨몸·직접 입력 운동 */
 const SAMPLE_SPLIT = {
@@ -24,11 +22,10 @@ const SAMPLE_SPLIT = {
 
 export default function DevStart() {
   const navigate = useNavigate();
-  const { setGym } = useGym();
+  const { equipmentIds, hasGym } = useGym();
   const { workout, dispatch } = useWorkout();
 
-  const start = (equipmentIds) => {
-    setGym(equipmentIds);
+  const start = () => {
     dispatch({ type: 'start', split: SAMPLE_SPLIT });
     navigate('/workout');
   };
@@ -42,7 +39,21 @@ export default function DevStart() {
         </>
       }
     >
-      <div className="mt-4 space-y-3">
+      <section className="mt-4 rounded-2xl border border-slate-100 p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold">내 헬스장 기구</h2>
+          <Button variant="outline" onClick={() => navigate('/onboarding/equipment')}>
+            {hasGym ? '수정' : '등록하기'}
+          </Button>
+        </div>
+        <p className="mt-2 text-sm text-slate-500">
+          {hasGym
+            ? `${equipmentIds.length}개: ${equipmentIds.map((id) => EQUIPMENT_BY_ID[id].name).join(', ')}`
+            : '아직 등록하지 않았어요'}
+        </p>
+      </section>
+
+      <div className="mt-6 space-y-3">
         <p className="text-sm text-slate-600">
           샘플 &ldquo;가슴 하는날&rdquo; (운동 6개: 바벨 벤치프레스, 인클라인 덤벨프레스, 펙덱 플라이, 케이블 푸시다운, 푸시업, 랜드마인 프레스)
         </p>
@@ -51,11 +62,8 @@ export default function DevStart() {
             진행 중인 운동 이어하기
           </Button>
         )}
-        <Button size="lg" full onClick={() => start(ALL_OWNED)}>
-          기구 전부 있는 헬스장으로 시작
-        </Button>
-        <Button variant="outline" size="lg" full onClick={() => start(ALL_OWNED.filter((id) => id !== 'pecdeck'))}>
-          펙덱 없는 헬스장으로 시작
+        <Button size="lg" full disabled={!hasGym} onClick={start}>
+          {hasGym ? '내 기구로 샘플 운동 시작' : '기구를 먼저 등록해 주세요'}
         </Button>
       </div>
     </MobileLayout>

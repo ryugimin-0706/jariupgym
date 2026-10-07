@@ -18,9 +18,10 @@ import Tag from './Tag.jsx';
  *   onBusy: () => void,
  *   onDefer: () => void,
  *   onSkip: () => void,
+ *   onAddEquipment: () => void, 내 헬스장에 없는 기구를 바로 등록
  * }} props
  */
-export default function ExerciseCard({ item, owned, busy, canMarkBusy, highlight, onToggleDone, onBusy, onDefer, onSkip }) {
+export default function ExerciseCard({ item, owned, busy, canMarkBusy, highlight, onToggleDone, onBusy, onDefer, onSkip, onAddEquipment }) {
   const [laterOpen, setLaterOpen] = useState(false);
   const exercise = item.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
   const name = exercise?.name ?? item.customName;
@@ -81,9 +82,20 @@ export default function ExerciseCard({ item, owned, busy, canMarkBusy, highlight
       </div>
 
       {(!exercise || !owned || busy) && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           {!exercise && <Tag>대체 추천 미지원</Tag>}
-          {exercise && !owned && <Tag tone="coral">내 헬스장에 없는 기구</Tag>}
+          {exercise && !owned && (
+            <>
+              <Tag tone="coral">내 헬스장에 없는 기구</Tag>
+              <button
+                type="button"
+                onClick={onAddEquipment}
+                className="-my-2 min-h-11 rounded-full px-2 text-xs font-semibold text-mint-700 underline-offset-2 active:underline"
+              >
+                ＋ 기구 추가
+              </button>
+            </>
+          )}
           {busy && <Tag tone="coral">기구 사용 중</Tag>}
         </div>
       )}

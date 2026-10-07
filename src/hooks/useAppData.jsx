@@ -3,6 +3,7 @@
  * (예: 2-A에서 "기구 추가"를 누르면 같은 화면의 목록이 즉시 갱신)
  */
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { EQUIPMENT } from '../data/equipment.js';
 import { loadGym, loadRoutine, saveGym, saveRoutine } from '../lib/storage.js';
 
 const AppDataContext = createContext(null);
@@ -43,7 +44,13 @@ export function useAppData() {
 /** 내 헬스장 기구 id 배열 (없으면 빈 배열) */
 export function useGym() {
   const { gym, setGym } = useAppData();
-  return { equipmentIds: gym ?? [], hasGym: gym !== null, setGym };
+  const equipmentIds = gym ?? [];
+  /** 기구 하나를 내 헬스장에 추가 (데이터 순서 유지) */
+  const addEquipment = (id) => {
+    const next = new Set([...equipmentIds, id]);
+    setGym(EQUIPMENT.filter((e) => next.has(e.id)).map((e) => e.id));
+  };
+  return { equipmentIds, hasGym: gym !== null, setGym, addEquipment };
 }
 
 export function useRoutine() {

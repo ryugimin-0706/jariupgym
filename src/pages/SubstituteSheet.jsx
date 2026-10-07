@@ -16,9 +16,10 @@ import { todayExerciseIds } from '../workout/workoutReducer.js';
  *   onPick: (exerciseId: string) => void,
  *   onDefer: () => void,
  *   onSkip: () => void,
+ *   onAddEquipment: () => void,
  * }} props
  */
-export default function SubstituteSheet({ workout, target, ownedEquipmentIds, onClose, onPick, onDefer, onSkip }) {
+export default function SubstituteSheet({ workout, target, ownedEquipmentIds, onClose, onPick, onDefer, onSkip, onAddEquipment }) {
   const item = target ? workout.items.find((i) => i.key === target.key) : null;
   const exercise = item?.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
   if (!item || !exercise) return <BottomSheet open={false} onClose={onClose} title="" />;
@@ -91,6 +92,16 @@ export default function SubstituteSheet({ workout, target, ownedEquipmentIds, on
           이번엔 건너뛰기
         </Button>
       </div>
+
+      {target.reason === 'missing' && (
+        <button
+          type="button"
+          onClick={onAddEquipment}
+          className="mt-3 flex min-h-11 w-full items-center justify-center rounded-2xl bg-slate-50 text-sm text-slate-600 active:bg-slate-100"
+        >
+          우리 헬스장에 있어요 ·&nbsp;<b className="text-mint-700">{equipmentName} 추가</b>
+        </button>
+      )}
     </BottomSheet>
   );
 }

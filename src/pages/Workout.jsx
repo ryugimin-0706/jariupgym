@@ -11,6 +11,7 @@ import { useGym } from '../hooks/useAppData.jsx';
 import { canMarkBusy, isOwned, swapToastMessage } from '../lib/recommend.js';
 import { useWorkout } from '../workout/WorkoutContext.jsx';
 import { progress } from '../workout/workoutReducer.js';
+import { josa } from '../lib/text.js';
 import SubstituteSheet from './SubstituteSheet.jsx';
 
 const HIGHLIGHT_MS = 1600;
@@ -20,7 +21,7 @@ const FINISH_DELAY_MS = 700;
 export default function Workout() {
   const navigate = useNavigate();
   const { workout, dispatch } = useWorkout();
-  const { equipmentIds } = useGym();
+  const { equipmentIds, addEquipment } = useGym();
   const { toast, show: showToast } = useToast();
   /** 바텀시트 대상: 'busy' = 자리 없음, 'missing' = 내 헬스장에 없는 기구 */
   const [sheet, setSheet] = useState(/** @type {{ key: string, reason: 'busy' | 'missing' } | null} */ (null));
@@ -68,6 +69,14 @@ export default function Workout() {
     dispatch({ type: 'defer', key: sheet.key });
     setSheet(null);
     showToast('순서를 뒤로 미뤘어요. 다른 운동 먼저 해요');
+  };
+
+  /** 내 헬스장에 없던 기구를 바로 등록 → 카드가 일반 운동으로 돌아온다 */
+  const addMissingEquipment = (exerciseId) => {
+    const equipment = EQUIPMENT_BY_ID[EXERCISES_BY_ID[exerciseId].equipmentId];
+    addEquipment(equipment.id);
+    setSheet(null);
+    showToast(`${josa(equipment.name, '을', '를')} 내 기구에 추가했어요`);
   };
 
   const skipFromSheet = () => {
@@ -146,6 +155,7 @@ export default function Workout() {
                 onBusy={() => openSubstitutes(item)}
                 onDefer={() => dispatch({ type: 'defer', key: item.key })}
                 onSkip={() => dispatch({ type: 'skip', key: item.key })}
+                onAddEquipment={() => addMissingEquipment(item.exerciseId)}
               />
             </li>
           );
@@ -160,6 +170,7 @@ export default function Workout() {
         onPick={pick}
         onDefer={deferFromSheet}
         onSkip={skipFromSheet}
+        onAddEquipment={() => addMissingEquipment(workout.items.find((i) => i.key === sheet.key).exerciseId)}
       />
       <Toast toast={toast} />
     </MobileLayout>
