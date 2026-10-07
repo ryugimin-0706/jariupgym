@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
 import Button from '../../components/Button.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { EQUIPMENT_BY_ID, EQUIPMENT_GROUPS, SELECTABLE_EQUIPMENT } from '../../data/equipment.js';
 import { useGym } from '../../hooks/useAppData.jsx';
 
@@ -63,7 +64,7 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
             <h1 className="text-xl font-bold text-navy-700">내 헬스장 기구</h1>
           </div>
         ) : (
-          <p className="text-sm font-semibold text-mint-600">1 / 2</p>
+          <PageHeader step="1 / 2" onBack={() => navigate('/welcome')} />
         )
       }
       bottom={

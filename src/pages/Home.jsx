@@ -39,7 +39,7 @@ export default function Home() {
     clearAll();
     dispatch({ type: 'end' });
     resetAll();
-    navigate('/onboarding/equipment', { replace: true });
+    navigate('/welcome', { replace: true });
   };
 
   return (
