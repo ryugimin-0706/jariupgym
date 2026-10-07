@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { progress, todayExerciseIds, workoutReducer } from './workoutReducer.js';
+import { progress, swapChainOf, todayExerciseIds, workoutReducer } from './workoutReducer.js';
 
 const split = {
   id: 'split_1',
@@ -77,7 +77,11 @@ describe('운동 세션 reducer', () => {
     s = workoutReducer(s, { type: 'substitute', key, exerciseId: 'dumbbell_bench_press' });
     s = workoutReducer(s, { type: 'substitute', key, exerciseId: 'chest_press' });
     s = workoutReducer(s, { type: 'defer', key: keyOf(s, 'cable_pushdown') });
-    expect(s.items[0]).toMatchObject({ exerciseId: 'chest_press', originalExerciseId: 'barbell_bench_press' });
+    expect(s.items[0]).toMatchObject({
+      exerciseId: 'chest_press',
+      originalExerciseId: 'barbell_bench_press',
+      swapChain: ['barbell_bench_press', 'dumbbell_bench_press'],
+    });
     expect(s.swapCount).toBe(2);
     expect(s.lastSwappedKey).toBe(key);
     // 대체 후보 조건 4: 원래 운동도 오늘 루틴으로 본다
@@ -89,5 +93,10 @@ describe('운동 세션 reducer', () => {
     const s = start();
     expect(workoutReducer(s, { type: 'skip', key: 'nope' })).toBe(s);
     expect(workoutReducer(s, { type: 'end' })).toBeNull();
+  });
+
+  it('swapChain이 없는 예전 세션도 최초 운동은 보여준다', () => {
+    expect(swapChainOf({ originalExerciseId: 'barbell_bench_press' })).toEqual(['barbell_bench_press']);
+    expect(swapChainOf({ originalExerciseId: null })).toEqual([]);
   });
 });

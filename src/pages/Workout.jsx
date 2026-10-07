@@ -14,6 +14,8 @@ import { progress } from '../workout/workoutReducer.js';
 import SubstituteSheet from './SubstituteSheet.jsx';
 
 const HIGHLIGHT_MS = 1600;
+/** 마지막 운동을 끝내고 완료 화면으로 넘어가기까지 (체크 표시를 보고, 잘못 눌렀으면 취소할 틈) */
+const FINISH_DELAY_MS = 700;
 
 export default function Workout() {
   const navigate = useNavigate();
@@ -29,6 +31,14 @@ export default function Workout() {
     const t = setTimeout(() => dispatch({ type: 'clearHighlight' }), HIGHLIGHT_MS);
     return () => clearTimeout(t);
   }, [lastSwappedKey, dispatch]);
+
+  const finished = workout ? progress(workout).finished : false;
+  useEffect(() => {
+    if (!finished) return undefined;
+    // replace: 완료 화면에서 뒤로가기를 눌러도 운동 화면으로 돌아오지 않게
+    const t = setTimeout(() => navigate('/complete', { replace: true }), FINISH_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [finished, navigate]);
 
   const closeSheet = useCallback(() => setSheet(null), []);
 

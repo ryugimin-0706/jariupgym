@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { AppDataProvider } from './hooks/useAppData.jsx';
+import Complete from './pages/Complete.jsx';
 import DevStart from './pages/DevStart.jsx';
 import Workout from './pages/Workout.jsx';
 import { WorkoutProvider } from './workout/WorkoutContext.jsx';
@@ -12,6 +13,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<DevStart />} />
             <Route path="/workout" element={<Workout />} />
+            <Route path="/complete" element={<Complete />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

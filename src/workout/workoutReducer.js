@@ -18,6 +18,7 @@ import { makeId } from '../lib/routine.js';
  * @property {number} sets
  * @property {ItemStatus} status
  * @property {string | null} originalExerciseId 대체된 경우 최초 운동 id
+ * @property {string[]} swapChain          지금 운동 이전에 거쳐 온 운동 id들 (오래된 순, 최초 운동 포함)
  *
  * @typedef {Object} WorkoutState
  * @property {string} splitId
@@ -43,6 +44,7 @@ export function createWorkout(split) {
       sets: e.sets,
       status: 'pending',
       originalExerciseId: null,
+      swapChain: [],
     })),
     busyEquipmentIds: [],
     swapCount: 0,
@@ -76,6 +78,16 @@ export function todayExerciseIds(state) {
     if (item.originalExerciseId) ids.add(item.originalExerciseId);
   }
   return ids;
+}
+
+/**
+ * 지금 운동 이전에 거쳐 온 운동 id들 (오래된 순).
+ * swapChain이 없던 예전 세션은 최초 운동만 돌려준다.
+ * @param {WorkoutItem} item
+ */
+export function swapChainOf(item) {
+  if (item.swapChain) return item.swapChain;
+  return item.originalExerciseId ? [item.originalExerciseId] : [];
 }
 
 export function progress(state) {
@@ -131,6 +143,7 @@ export function workoutReducer(state, action) {
                 ...i,
                 exerciseId: action.exerciseId,
                 originalExerciseId: i.originalExerciseId ?? i.exerciseId,
+                swapChain: [...swapChainOf(i), i.exerciseId],
               }
             : i,
         ),
