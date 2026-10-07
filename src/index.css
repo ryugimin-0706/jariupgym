@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+@theme {
+  /* 메인: 네이비 */
+  --color-navy-50: #eef3f8;
+  --color-navy-100: #d5e0ec;
+  --color-navy-500: #2c5282;
+  --color-navy-700: #1e3a5f;
+  --color-navy-900: #132840;
+
+  /* 포인트: 민트 */
+  --color-mint-50: #e9f9f7;
+  --color-mint-100: #c8f0eb;
+  --color-mint-500: #2ec4b6;
+  --color-mint-600: #24a89c;
+  --color-mint-700: #1b8278;
+
+  /* 경고성 액션: 코랄 */
+  --color-coral-50: #fff3ef;
+  --color-coral-100: #ffe0d6;
+  --color-coral-500: #ff8a65;
+  --color-coral-600: #f4704a;
+  --color-coral-700: #c9542f;
+
+  /* 대체된 운동 카드 하이라이트 */
+  --animate-swap: swap 1.6s ease-out;
+  @keyframes swap {
+    0% {
+      background-color: var(--color-mint-100);
+      transform: scale(0.97);
+    }
+    20% {
+      transform: scale(1.01);
+    }
+    100% {
+      background-color: #fff;
+      transform: scale(1);
+    }
+  }
+
+  --animate-sheet-up: sheet-up 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  --animate-fade-in: fade-in 0.2s ease-out;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  --animate-toast-in: toast-in 0.25s ease-out;
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic',
+    'Noto Sans KR', system-ui, sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-100 text-navy-900 antialiased;
+  -webkit-tap-highlight-color: transparent;
+  word-break: keep-all;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* 가로 스크롤 영역의 스크롤바 숨김 */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
