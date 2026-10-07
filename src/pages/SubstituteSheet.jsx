@@ -1,5 +1,6 @@
 /** 화면 5. 대체 운동 추천 (바텀시트) */
 import BottomSheet from '../components/BottomSheet.jsx';
+import { GuideButton } from '../components/ExerciseGuide.jsx';
 import Button from '../components/Button.jsx';
 import { EQUIPMENT_BY_ID } from '../data/equipment.js';
 import { EXERCISES_BY_ID } from '../data/exercises.js';
@@ -17,9 +18,20 @@ import { todayExerciseIds } from '../workout/workoutReducer.js';
  *   onDefer: () => void,
  *   onSkip: () => void,
  *   onAddEquipment: () => void,
+ *   onGuide: (exerciseId: string) => void,  운동 방법 보기 (시트는 Workout에서 띄움)
  * }} props
  */
-export default function SubstituteSheet({ workout, target, ownedEquipmentIds, onClose, onPick, onDefer, onSkip, onAddEquipment }) {
+export default function SubstituteSheet({
+  workout,
+  target,
+  ownedEquipmentIds,
+  onClose,
+  onPick,
+  onDefer,
+  onSkip,
+  onAddEquipment,
+  onGuide,
+}) {
   const item = target ? workout.items.find((i) => i.key === target.key) : null;
   const exercise = item?.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
   if (!item || !exercise) return <BottomSheet open={false} onClose={onClose} title="" />;
@@ -54,13 +66,16 @@ export default function SubstituteSheet({ workout, target, ownedEquipmentIds, on
           {suggestions.map(({ exercise: candidate, reason }, i) => {
             const eq = EQUIPMENT_BY_ID[candidate.equipmentId];
             return (
-              <li key={candidate.id}>
+              <li
+                key={candidate.id}
+                className={`flex items-center rounded-2xl border ${
+                  i === 0 ? 'border-mint-500 bg-mint-50' : 'border-slate-200 bg-white'
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => onPick(candidate.id)}
-                  className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition active:scale-[0.99] ${
-                    i === 0 ? 'border-mint-500 bg-mint-50' : 'border-slate-200 bg-white active:bg-slate-50'
-                  }`}
+                  className="flex min-w-0 flex-1 items-center gap-3 rounded-l-2xl p-4 pr-2 text-left transition active:scale-[0.99] active:bg-black/5"
                 >
                   <span className="text-2xl" aria-hidden>
                     {eq.emoji}
@@ -69,7 +84,9 @@ export default function SubstituteSheet({ workout, target, ownedEquipmentIds, on
                     <span className="flex items-center gap-1.5">
                       <span className="font-bold text-navy-900">{candidate.name}</span>
                       {i === 0 && (
-                        <span className="rounded-full bg-mint-500 px-2 py-0.5 text-[11px] font-bold text-white">추천</span>
+                        <span className="rounded-full bg-mint-500 px-2 py-0.5 text-[11px] font-bold text-white">
+                          추천
+                        </span>
                       )}
                     </span>
                     <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">{reason}</span>
@@ -78,6 +95,8 @@ export default function SubstituteSheet({ workout, target, ownedEquipmentIds, on
                     ›
                   </span>
                 </button>
+                <span className="h-8 w-px bg-slate-200" aria-hidden />
+                <GuideButton exerciseId={candidate.id} onOpen={onGuide} className="mx-1" />
               </li>
             );
           })}

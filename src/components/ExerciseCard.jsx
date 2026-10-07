@@ -3,6 +3,7 @@ import { EQUIPMENT_BY_ID } from '../data/equipment.js';
 import { EXERCISES_BY_ID } from '../data/exercises.js';
 import { TARGETS } from '../data/taxonomy.js';
 import Button from './Button.jsx';
+import { GuideButton } from './ExerciseGuide.jsx';
 import Tag from './Tag.jsx';
 
 /**
@@ -19,9 +20,22 @@ import Tag from './Tag.jsx';
  *   onDefer: () => void,
  *   onSkip: () => void,
  *   onAddEquipment: () => void, 내 헬스장에 없는 기구를 바로 등록
+ *   onGuide: (exerciseId: string) => void, 운동 방법 보기
  * }} props
  */
-export default function ExerciseCard({ item, owned, busy, canMarkBusy, highlight, onToggleDone, onBusy, onDefer, onSkip, onAddEquipment }) {
+export default function ExerciseCard({
+  item,
+  owned,
+  busy,
+  canMarkBusy,
+  highlight,
+  onToggleDone,
+  onBusy,
+  onDefer,
+  onSkip,
+  onAddEquipment,
+  onGuide,
+}) {
   const [laterOpen, setLaterOpen] = useState(false);
   const exercise = item.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
   const name = exercise?.name ?? item.customName;
@@ -65,7 +79,10 @@ export default function ExerciseCard({ item, owned, busy, canMarkBusy, highlight
               <span className="text-slate-400 line-through">{original.name}</span> → {name}
             </p>
           )}
-          <h3 className="text-lg leading-snug font-bold">{name}</h3>
+          <div className="flex items-center">
+            <h3 className="text-lg leading-snug font-bold">{name}</h3>
+            <GuideButton exerciseId={item.exerciseId} onOpen={onGuide} />
+          </div>
           <p className="mt-1 text-sm text-slate-500">
             {exercise ? (
               <>

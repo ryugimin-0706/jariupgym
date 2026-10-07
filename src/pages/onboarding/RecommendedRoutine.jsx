@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
 import Button from '../../components/Button.jsx';
+import { GuideButton, GuideSheet } from '../../components/ExerciseGuide.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
 import PageHeader from '../../components/PageHeader.jsx';
 import Tag from '../../components/Tag.jsx';
@@ -34,6 +35,7 @@ export default function RecommendedRoutine() {
   const splits = useMemo(() => adaptPresetRoutines(equipmentIds), [equipmentIds]);
 
   // 바뀐 운동이 있는 분할은 펼쳐서 보여준다. 없으면 첫 분할만.
+  const [guideId, setGuideId] = useState(null);
   const [open, setOpen] = useState(() => {
     const adapted = splits.filter((s) => s.exercises.some((e) => e.adaptedFrom)).map((s) => s.id);
     return new Set(adapted.length ? adapted : [splits[0]?.id]);
@@ -81,8 +83,8 @@ export default function RecommendedRoutine() {
       <p className="mt-2 text-sm text-slate-500">
         {adaptedCount > 0 ? (
           <>
-            내 헬스장에 없는 기구를 쓰는 운동 <b className="text-mint-700">{adaptedCount}개</b>를 같은 부위 운동으로 바꿔
-            넣었어요.
+            내 헬스장에 없는 기구를 쓰는 운동 <b className="text-mint-700">{adaptedCount}개</b>를 같은 부위 운동으로
+            바꿔 넣었어요.
           </>
         ) : (
           '내 헬스장 기구로 모든 운동을 할 수 있어요.'
@@ -132,6 +134,7 @@ export default function RecommendedRoutine() {
                             <span className="min-w-0 flex-1">
                               <span className="flex flex-wrap items-center gap-1.5">
                                 <span className="font-semibold text-navy-900">{exercise.name}</span>
+                                <GuideButton exerciseId={exercise.id} onOpen={setGuideId} className="-mx-2" />
                                 {e.adaptedFrom && <Tag tone="mint">내 헬스장 맞춤</Tag>}
                               </span>
                               <span className="mt-0.5 block text-xs text-slate-500">
@@ -173,6 +176,7 @@ export default function RecommendedRoutine() {
           );
         })}
       </ul>
+      <GuideSheet exerciseId={guideId} onClose={() => setGuideId(null)} />
     </MobileLayout>
   );
 }

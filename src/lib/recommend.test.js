@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EQUIPMENT_BY_ID, EQUIPMENT_GROUPS, SELECTABLE_EQUIPMENT } from '../data/equipment.js';
+import { EXERCISE_GUIDES, videoSearchUrl } from '../data/exerciseGuides.js';
 import { EXERCISES, EXERCISES_BY_ID } from '../data/exercises.js';
 import { PRESET_ROUTINES } from '../data/presetRoutines.js';
 import { PATTERNS, TARGETS } from '../data/taxonomy.js';
@@ -38,6 +39,20 @@ describe('데이터 무결성', () => {
   it('선택할 수 있는 모든 기구가 기구 등록 묶음 중 정확히 하나에 들어 있다', () => {
     const grouped = EQUIPMENT_GROUPS.flatMap((g) => g.equipmentIds);
     expect([...grouped].sort()).toEqual(SELECTABLE_EQUIPMENT.map((e) => e.id).sort());
+  });
+
+  it('모든 운동에 운동 방법(3단계 + 주의점)이 있고, 없는 운동의 설명은 없다', () => {
+    for (const ex of EXERCISES) {
+      const guide = EXERCISE_GUIDES[ex.id];
+      expect(guide, ex.id).toBeDefined();
+      expect(guide.steps, ex.id).toHaveLength(3);
+      expect(guide.caution.length, ex.id).toBeGreaterThan(0);
+    }
+    expect(Object.keys(EXERCISE_GUIDES).filter((id) => !EXERCISES_BY_ID[id])).toEqual([]);
+  });
+
+  it('영상 검색 주소', () => {
+    expect(videoSearchUrl('덤벨 컬')).toBe('https://www.youtube.com/results?search_query=%EB%8D%A4%EB%B2%A8%20%EC%BB%AC%20%EC%9E%90%EC%84%B8');
   });
 
   it('추천 루틴의 모든 운동이 운동 목록에 있다', () => {

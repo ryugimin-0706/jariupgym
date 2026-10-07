@@ -1,6 +1,7 @@
 /** 화면 2-A의 "운동 담기" 바텀시트: 부위 탭 → 운동 목록, 직접 입력 */
 import { useState } from 'react';
 import BottomSheet from '../../components/BottomSheet.jsx';
+import { GuideButton, GuideSheet } from '../../components/ExerciseGuide.jsx';
 import Button from '../../components/Button.jsx';
 import Tag from '../../components/Tag.jsx';
 import { EQUIPMENT_BY_ID } from '../../data/equipment.js';
@@ -20,24 +21,30 @@ import { guessBodyPart } from '../../lib/routine.js';
  * }} props
  */
 export default function ExercisePicker({ split, onClose, onAdd, onAddCustom, onRemove }) {
+  // 운동 방법 시트는 담기 시트 밖에 띄운다 (시트 안에 두면 위치가 어긋남)
+  const [guideId, setGuideId] = useState(null);
   return (
-    <BottomSheet open={!!split} onClose={onClose} title={split ? `${split.name.trim() || '분할'}에 운동 담기` : ''}>
-      {/* 시트를 열 때마다 탭·입력 상태를 새로 시작 */}
-      {split && (
-        <PickerBody
-          key={split.id}
-          split={split}
-          onAdd={onAdd}
-          onAddCustom={onAddCustom}
-          onRemove={onRemove}
-          onDone={onClose}
-        />
-      )}
-    </BottomSheet>
+    <>
+      <BottomSheet open={!!split} onClose={onClose} title={split ? `${split.name.trim() || '분할'}에 운동 담기` : ''}>
+        {/* 시트를 열 때마다 탭·입력 상태를 새로 시작 */}
+        {split && (
+          <PickerBody
+            key={split.id}
+            split={split}
+            onAdd={onAdd}
+            onAddCustom={onAddCustom}
+            onRemove={onRemove}
+            onDone={onClose}
+            onGuide={setGuideId}
+          />
+        )}
+      </BottomSheet>
+      <GuideSheet exerciseId={guideId} onClose={() => setGuideId(null)} />
+    </>
   );
 }
 
-function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone }) {
+function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
   const { equipmentIds, addEquipment } = useGym();
   const [tab, setTab] = useState(() => guessBodyPart(split.name));
   const [customName, setCustomName] = useState('');
@@ -101,7 +108,10 @@ function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone }) {
               return (
                 <li key={exercise.id} className="flex items-center gap-3 py-2.5">
                   <span className={`min-w-0 flex-1 ${has ? '' : 'opacity-60'}`}>
-                    <span className="block font-semibold text-navy-900">{exercise.name}</span>
+                    <span className="flex items-center">
+                      <span className="font-semibold text-navy-900">{exercise.name}</span>
+                      <GuideButton exerciseId={exercise.id} onOpen={onGuide} />
+                    </span>
                     <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
                       <span>
                         {eq.emoji} {eq.name} · {TARGETS[exercise.target].label}

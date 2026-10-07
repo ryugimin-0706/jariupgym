@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import ExerciseCard from '../components/ExerciseCard.jsx';
+import { GuideSheet } from '../components/ExerciseGuide.jsx';
 import HorizontalScroller from '../components/HorizontalScroller.jsx';
 import MobileLayout from '../components/MobileLayout.jsx';
 import Toast, { useToast } from '../components/Toast.jsx';
@@ -25,6 +26,8 @@ export default function Workout() {
   const { toast, show: showToast } = useToast();
   /** 바텀시트 대상: 'busy' = 자리 없음, 'missing' = 내 헬스장에 없는 기구 */
   const [sheet, setSheet] = useState(/** @type {{ key: string, reason: 'busy' | 'missing' } | null} */ (null));
+  /** 운동 방법 시트 (카드·대체 추천 시트 어디서든 열 수 있어 여기서 띄운다) */
+  const [guideId, setGuideId] = useState(null);
 
   const lastSwappedKey = workout?.lastSwappedKey;
   useEffect(() => {
@@ -156,6 +159,7 @@ export default function Workout() {
                 onDefer={() => dispatch({ type: 'defer', key: item.key })}
                 onSkip={() => dispatch({ type: 'skip', key: item.key })}
                 onAddEquipment={() => addMissingEquipment(item.exerciseId)}
+                onGuide={setGuideId}
               />
             </li>
           );
@@ -171,7 +175,9 @@ export default function Workout() {
         onDefer={deferFromSheet}
         onSkip={skipFromSheet}
         onAddEquipment={() => addMissingEquipment(workout.items.find((i) => i.key === sheet.key).exerciseId)}
+        onGuide={setGuideId}
       />
+      <GuideSheet exerciseId={guideId} onClose={() => setGuideId(null)} />
       <Toast toast={toast} />
     </MobileLayout>
   );
