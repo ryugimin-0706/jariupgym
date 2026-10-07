@@ -3,6 +3,7 @@ import { AppDataProvider, useGym, useRoutine } from './hooks/useAppData.jsx';
 import Complete from './pages/Complete.jsx';
 import Home from './pages/Home.jsx';
 import EquipmentSelect from './pages/onboarding/EquipmentSelect.jsx';
+import RecommendedRoutine from './pages/onboarding/RecommendedRoutine.jsx';
 import RoutineChoice from './pages/onboarding/RoutineChoice.jsx';
 import Workout from './pages/Workout.jsx';
 import { WorkoutProvider } from './workout/WorkoutContext.jsx';
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/" element={<HomeGate />} />
             <Route path="/onboarding/equipment" element={<EquipmentSelect next="/onboarding/routine" />} />
             <Route path="/onboarding/routine" element={<RoutineChoice />} />
+            <Route path="/onboarding/recommended" element={<RecommendedRoutine />} />
             <Route path="/settings/equipment" element={<EquipmentSelect mode="settings" next="/" />} />
             <Route path="/workout" element={<Workout />} />
             <Route path="/complete" element={<Complete />} />

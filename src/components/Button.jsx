@@ -1,9 +1,9 @@
 const VARIANTS = {
   primary: 'bg-navy-700 text-white active:bg-navy-900 disabled:bg-slate-200 disabled:text-slate-400',
   mint: 'bg-mint-500 text-white active:bg-mint-600 disabled:bg-slate-200 disabled:text-slate-400',
-  coral: 'bg-coral-50 text-coral-700 ring-1 ring-coral-100 active:bg-coral-100',
-  outline: 'bg-white text-navy-700 ring-1 ring-slate-200 active:bg-slate-50',
-  ghost: 'bg-transparent text-slate-500 active:bg-slate-100',
+  coral: 'bg-coral-50 text-coral-700 ring-1 ring-coral-100 active:bg-coral-100 disabled:opacity-40',
+  outline: 'bg-white text-navy-700 ring-1 ring-slate-200 active:bg-slate-50 disabled:opacity-40',
+  ghost: 'bg-transparent text-slate-500 active:bg-slate-100 disabled:opacity-40',
 };
 
 const SIZES = {

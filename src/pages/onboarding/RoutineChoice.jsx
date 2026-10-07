@@ -1,71 +1,57 @@
-// 화면 2. 루틴 방식 선택 — 5단계 임시 버전. 6단계에서 실제 선택 카드로 바뀐다.
+/** 화면 2. 루틴 방식 선택 */
 import { useNavigate } from 'react-router';
-import Button from '../../components/Button.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
-import { useRoutine } from '../../hooks/useAppData.jsx';
-
-/** 임시 샘플 루틴 (홈 확인용) */
-const SAMPLE_ROUTINE = {
-  source: 'custom',
-  splits: [
-    {
-      id: 'sample_chest',
-      name: '가슴 하는날',
-      exercises: [
-        { id: 's1', exerciseId: 'barbell_bench_press', sets: 3 },
-        { id: 's2', exerciseId: 'incline_dumbbell_press', sets: 3 },
-        { id: 's3', exerciseId: 'pec_deck_fly', sets: 3 },
-        { id: 's4', exerciseId: 'cable_pushdown', sets: 4 },
-        { id: 's5', exerciseId: 'push_up', sets: 2 },
-        { id: 's6', exerciseId: null, customName: '랜드마인 프레스', sets: 3 },
-      ],
-    },
-    {
-      id: 'sample_back',
-      name: '등 하는날',
-      exercises: [
-        { id: 'b1', exerciseId: 'lat_pulldown', sets: 4 },
-        { id: 'b2', exerciseId: 'seated_cable_row', sets: 3 },
-        { id: 'b3', exerciseId: 'one_arm_dumbbell_row', sets: 3 },
-        { id: 'b4', exerciseId: 'barbell_curl', sets: 3 },
-      ],
-    },
-    {
-      id: 'sample_legs',
-      name: '하체 하는날',
-      exercises: [
-        { id: 'l1', exerciseId: 'barbell_back_squat', sets: 4 },
-        { id: 'l2', exerciseId: 'leg_press', sets: 3 },
-        { id: 'l3', exerciseId: 'leg_extension', sets: 3 },
-        { id: 'l4', exerciseId: 'barbell_romanian_deadlift', sets: 3 },
-        { id: 'l5', exerciseId: 'leg_curl', sets: 3 },
-      ],
-    },
-  ],
-};
+import PageHeader from '../../components/PageHeader.jsx';
+import Tag from '../../components/Tag.jsx';
 
 export default function RoutineChoice() {
   const navigate = useNavigate();
-  const { setRoutine } = useRoutine();
 
   return (
-    <MobileLayout header={<p className="text-sm font-semibold text-mint-600">2 / 2</p>}>
+    <MobileLayout header={<PageHeader step="2 / 2" onBack={() => navigate('/onboarding/equipment')} />}>
       <h1 className="mt-2 text-2xl font-bold text-navy-700">운동 루틴이 있으신가요?</h1>
-      <p className="mt-3 rounded-xl bg-navy-50 px-3 py-2 text-sm text-navy-700">
-        🚧 임시 화면이에요. &ldquo;내 루틴이 있어요 / 추천 루틴으로 시작할게요&rdquo; 선택은 6단계에서 만들어요.
-      </p>
-      <div className="mt-6">
-        <Button
-          size="lg"
-          full
-          onClick={() => {
-            setRoutine(SAMPLE_ROUTINE);
-            navigate('/', { replace: true });
-          }}
-        >
-          샘플 루틴으로 시작 (가슴·등·하체)
-        </Button>
+      <p className="mt-2 text-sm text-slate-500">나중에 설정에서 언제든 바꿀 수 있어요.</p>
+
+      <div className="mt-8 space-y-4">
+        <ChoiceCard
+          emoji="📋"
+          title="내 루틴이 있어요"
+          desc="평소 하던 루틴을 분할별로 등록해요"
+          // 7단계에서 화면 2-A로 연결
+          disabledHint="7단계에서 연결"
+        />
+        <ChoiceCard
+          emoji="✨"
+          title="추천 루틴으로 시작할게요"
+          desc="내 헬스장 기구에 맞춘 루틴을 추천해 드려요"
+          onClick={() => navigate('/onboarding/recommended')}
+        />
       </div>
     </MobileLayout>
+  );
+}
+
+function ChoiceCard({ emoji, title, desc, onClick, disabledHint }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!!disabledHint}
+      className="flex w-full items-center gap-4 rounded-3xl border-2 border-slate-100 bg-white p-6 text-left shadow-sm transition active:scale-[0.99] active:border-mint-500 active:bg-mint-50 disabled:opacity-50"
+    >
+      <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-navy-50 text-3xl" aria-hidden>
+        {emoji}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="text-lg font-bold text-navy-900">{title}</span>
+          {disabledHint && <Tag>{disabledHint}</Tag>}
+        </span>
+        <span className="mt-1 block text-sm text-slate-500">{desc}</span>
+      </span>
+      <span className="text-xl text-slate-300" aria-hidden>
+        ›
+      </span>
+    </button>
   );
 }
