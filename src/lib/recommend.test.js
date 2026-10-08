@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EQUIPMENT_BY_ID, EQUIPMENT_GROUPS, SELECTABLE_EQUIPMENT } from '../data/equipment.js';
+import { EQUIPMENT_INFO } from '../data/equipmentInfo.js';
 import { EXERCISE_GUIDES, videoSearchUrl } from '../data/exerciseGuides.js';
 import { EXERCISES, EXERCISES_BY_ID } from '../data/exercises.js';
 import { PRESET_ROUTINES } from '../data/presetRoutines.js';
@@ -49,6 +50,18 @@ describe('데이터 무결성', () => {
       expect(guide.caution.length, ex.id).toBeGreaterThan(0);
     }
     expect(Object.keys(EXERCISE_GUIDES).filter((id) => !EXERCISES_BY_ID[id])).toEqual([]);
+  });
+
+  it('선택할 수 있는 모든 기구에 생김새 설명이 있고, 사진에는 출처 정보가 모두 있다', () => {
+    for (const eq of SELECTABLE_EQUIPMENT) {
+      const info = EQUIPMENT_INFO[eq.id];
+      expect(info?.look, eq.id).toBeTruthy();
+      if (info.photo) {
+        for (const field of ['src', 'author', 'license', 'licenseUrl', 'sourceUrl']) {
+          expect(info.photo[field], `${eq.id}.photo.${field}`).toBeTruthy();
+        }
+      }
+    }
   });
 
   it('영상 검색 주소', () => {

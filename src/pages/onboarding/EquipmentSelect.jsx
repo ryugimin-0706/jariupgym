@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
 import Button from '../../components/Button.jsx';
+import EquipmentInfoSheet from '../../components/EquipmentInfo.jsx';
+import { GuideSheet } from '../../components/ExerciseGuide.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
 import PageHeader from '../../components/PageHeader.jsx';
 import { EQUIPMENT_BY_ID, EQUIPMENT_GROUPS, SELECTABLE_EQUIPMENT } from '../../data/equipment.js';
@@ -19,6 +21,9 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
   const { equipmentIds, setGym } = useGym();
   // 맨몸 등 선택 화면에 없는 id는 걸러서 시작
   const [selected, setSelected] = useState(() => new Set(equipmentIds.filter((id) => ALL_IDS.includes(id))));
+  /** 기구 설명 시트, 그 안에서 연 운동 방법 시트 */
+  const [infoId, setInfoId] = useState(null);
+  const [guideId, setGuideId] = useState(null);
 
   const allSelected = selected.size === ALL_IDS.length;
 
@@ -94,7 +99,12 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
           기구를 알려주세요
         </h1>
       )}
-      <p className="mt-2 text-sm text-slate-500">맨몸 운동은 기구 없이 언제든 할 수 있어요.</p>
+      <p className="mt-2 text-sm leading-relaxed text-slate-500">
+        맨몸 운동은 기구 없이 언제든 할 수 있어요.
+        <br />
+        잘 모르는 기구는 <b className="font-semibold text-navy-700">ⓘ</b>를 눌러 확인하거나, 비워두셔도 돼요. 운동하다가
+        언제든 추가할 수 있어요.
+      </p>
 
       <div className="mt-6 mb-3 flex items-center justify-between">
         <p className="text-sm text-slate-500">있는 기구를 모두 골라주세요</p>
@@ -134,8 +144,18 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
               </div>
               <ul className="grid grid-cols-2 gap-3">
                 {group.equipmentIds.map((id) => (
-                  <li key={id}>
+                  <li key={id} className="relative">
                     <EquipmentCard eq={EQUIPMENT_BY_ID[id]} on={selected.has(id)} onToggle={() => toggle(id)} />
+                    <button
+                      type="button"
+                      onClick={() => setInfoId(id)}
+                      aria-label={`${EQUIPMENT_BY_ID[id].name} 설명 보기`}
+                      className="absolute right-1 bottom-1 flex size-11 items-center justify-center rounded-full text-slate-400 active:bg-slate-100"
+                    >
+                      <span className="flex size-5 items-center justify-center rounded-full border-[1.5px] border-current text-[11px] font-bold">
+                        i
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -143,6 +163,14 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
           );
         })}
       </div>
+      <EquipmentInfoSheet
+        equipmentId={infoId}
+        selected={infoId ? selected.has(infoId) : false}
+        onToggle={() => toggle(infoId)}
+        onClose={() => setInfoId(null)}
+        onGuide={setGuideId}
+      />
+      <GuideSheet exerciseId={guideId} onClose={() => setGuideId(null)} />
     </MobileLayout>
   );
 }
@@ -161,7 +189,7 @@ function EquipmentCard({ eq, on, onToggle }) {
       <span className={`text-3xl transition ${on ? '' : 'opacity-50 grayscale'}`} aria-hidden>
         {eq.emoji}
       </span>
-      <span className="mt-2">
+      <span className="mt-2 pr-7">
         <span className={`block text-sm leading-tight font-bold ${on ? 'text-navy-900' : 'text-slate-500'}`}>
           {eq.name}
         </span>
