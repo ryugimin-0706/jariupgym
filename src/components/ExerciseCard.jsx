@@ -32,6 +32,7 @@ const PER_SIDE_EQUIPMENT = new Set(['dumbbell', 'kettlebell']);
  *   onSkip: () => void,
  *   onAddEquipment: () => void, 내 헬스장에 없는 기구를 바로 등록
  *   onGuide: (exerciseId: string) => void, 운동 방법 보기
+ *   onRemoveExercise: () => void, 운동 중에 추가한 운동 빼기
  * }} props
  */
 export default function ExerciseCard({
@@ -53,6 +54,7 @@ export default function ExerciseCard({
   onSkip,
   onAddEquipment,
   onGuide,
+  onRemoveExercise,
 }) {
   const [laterOpen, setLaterOpen] = useState(false);
   const exercise = item.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
@@ -158,8 +160,20 @@ export default function ExerciseCard({
         </div>
       )}
 
-      {(!exercise || !owned || busy) && (
+      {(!exercise || !owned || busy || item.added) && (
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {item.added && (
+            <>
+              <Tag tone="mint">오늘 추가{item.routineExerciseId ? ' · 내 루틴에도 넣음' : ''}</Tag>
+              <button
+                type="button"
+                onClick={onRemoveExercise}
+                className="-my-2 min-h-11 rounded-full px-2 text-xs font-semibold text-slate-500 active:underline"
+              >
+                빼기
+              </button>
+            </>
+          )}
           {!exercise && <Tag>대체 추천 미지원</Tag>}
           {exercise && !owned && (
             <>

@@ -28,6 +28,8 @@ import { makeId } from '../lib/routine.js';
  * @property {ItemStatus} status
  * @property {string | null} originalExerciseId 대체된 경우 최초 운동 id
  * @property {string[]} swapChain          지금 운동 이전에 거쳐 온 운동 id들 (오래된 순, 최초 운동 포함)
+ * @property {boolean} [added]             운동 중에 추가한 운동 (빼기 가능)
+ * @property {string} [routineExerciseId]  "내 루틴에도 추가"로 저장 루틴에 넣은 항목 id (빼면 루틴에서도 뺀다)
  *
  * @typedef {Object} WorkoutState
  * @property {string} splitId
@@ -39,6 +41,7 @@ import { makeId } from '../lib/routine.js';
  */
 
 export const MAX_SETS_IN_WORKOUT = 20;
+export const DEFAULT_ADDED_SETS = 3;
 
 /** @returns {SetRow} */
 const newRow = (exerciseId) => ({ weight: null, reps: DEFAULT_COUNT[unitOf(exerciseId)], done: false });
@@ -235,6 +238,38 @@ export function workoutReducer(state, action) {
     }
 
     // 건너뛴 운동을 다시 진행 중으로 (기록은 유지)
+    // 운동 중에 종목 추가: 진행 중 운동들의 맨 뒤(완료 카드보다 위), 기본 3세트
+    case 'addExercise': {
+      const exerciseId = action.exerciseId ?? null;
+      const duplicate = state.items.some((i) =>
+        exerciseId ? i.exerciseId === exerciseId : !i.exerciseId && i.customName === action.customName,
+      );
+      if (duplicate) return state;
+      const key = action.newKey ?? makeId('w');
+      const added = {
+        key,
+        exerciseId,
+        ...(action.customName ? { customName: action.customName } : {}),
+        setLog: Array.from({ length: action.sets ?? DEFAULT_ADDED_SETS }, () => newRow(exerciseId)),
+        status: 'pending',
+        originalExerciseId: null,
+        swapChain: [],
+        added: true,
+        ...(action.routineExerciseId ? { routineExerciseId: action.routineExerciseId } : {}),
+      };
+      return { ...state, items: moveToPendingEnd([...state.items, added], key) };
+    }
+
+    // 추가한 운동을 저장 루틴에도 넣었을 때 연결 (빼면 루틴에서도 빼기 위해)
+    case 'linkRoutine':
+      if (!item.added) return state;
+      return { ...state, items: patchItem(state.items, item.key, { routineExerciseId: action.routineExerciseId }) };
+
+    // 추가한 운동만 뺄 수 있다
+    case 'removeExercise':
+      if (!item.added) return state;
+      return { ...state, items: state.items.filter((i) => i.key !== item.key) };
+
     case 'restore':
       if (item.status !== 'skipped') return state;
       return { ...state, items: moveToPendingEnd(state.items, item.key, { status: 'pending' }) };

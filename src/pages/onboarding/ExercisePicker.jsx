@@ -1,4 +1,7 @@
-/** 화면 2-A의 "운동 담기" 바텀시트: 부위 탭 → 운동 목록, 직접 입력 */
+/**
+ * "운동 담기" 바텀시트: 부위 탭 → 운동 목록, 직접 입력.
+ * 화면 2-A(루틴 편집)와 운동 중 "운동 추가"에서 함께 쓴다.
+ */
 import { useState } from 'react';
 import BottomSheet from '../../components/BottomSheet.jsx';
 import { GuideButton, GuideSheet } from '../../components/ExerciseGuide.jsx';
@@ -18,14 +21,21 @@ import { guessBodyPart } from '../../lib/routine.js';
  *   onAdd: (exerciseId: string) => void,
  *   onAddCustom: (name: string) => void,
  *   onRemove: (itemId: string) => void,  담은 운동 항목 삭제 (직접 입력 목록의 ✕)
+ *   title?: string,                      기본: "{분할 이름}에 운동 담기"
+ *   busyEquipmentIds?: string[],         운동 중: 사용 중인 기구 표시
  * }} props
+ * split.exercises 항목에 locked: true가 있으면 "오늘 루틴에 있음"으로 표시하고 뺄 수 없다.
  */
-export default function ExercisePicker({ split, onClose, onAdd, onAddCustom, onRemove }) {
+export default function ExercisePicker({ split, onClose, onAdd, onAddCustom, onRemove, title, busyEquipmentIds }) {
   // 운동 방법 시트는 담기 시트 밖에 띄운다 (시트 안에 두면 위치가 어긋남)
   const [guideId, setGuideId] = useState(null);
   return (
     <>
-      <BottomSheet open={!!split} onClose={onClose} title={split ? `${split.name.trim() || '분할'}에 운동 담기` : ''}>
+      <BottomSheet
+        open={!!split}
+        onClose={onClose}
+        title={split ? (title ?? `${split.name.trim() || '분할'}에 운동 담기`) : ''}
+      >
         {/* 시트를 열 때마다 탭·입력 상태를 새로 시작 */}
         {split && (
           <PickerBody
@@ -36,6 +46,7 @@ export default function ExercisePicker({ split, onClose, onAdd, onAddCustom, onR
             onRemove={onRemove}
             onDone={onClose}
             onGuide={setGuideId}
+            busy={new Set(busyEquipmentIds ?? [])}
           />
         )}
       </BottomSheet>
@@ -44,16 +55,17 @@ export default function ExercisePicker({ split, onClose, onAdd, onAddCustom, onR
   );
 }
 
-function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
+function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide, busy }) {
   const { equipmentIds, addEquipment } = useGym();
   const [tab, setTab] = useState(() => guessBodyPart(split.name));
   const [customName, setCustomName] = useState('');
 
-  /** 운동 id → 담은 항목 id (다시 누르면 빼기 위해) */
-  const inSplit = new Map(split.exercises.filter((e) => e.exerciseId).map((e) => [e.exerciseId, e.id]));
-  const customItems = split.exercises.filter((e) => !e.exerciseId);
-  const customNames = new Set(customItems.map((e) => e.customName));
-  const addedCount = split.exercises.length;
+  /** 운동 id → 담은 항목 (다시 누르면 빼기 위해) */
+  const inSplit = new Map(split.exercises.filter((e) => e.exerciseId).map((e) => [e.exerciseId, e]));
+  const customNames = new Set(split.exercises.filter((e) => !e.exerciseId).map((e) => e.customName));
+  // 뺄 수 있는 직접 입력 운동만 목록에 보여준다 (운동 중에는 원래 루틴 운동은 잠김)
+  const customItems = split.exercises.filter((e) => !e.exerciseId && !e.locked);
+  const addedCount = split.exercises.filter((e) => !e.locked).length;
 
   // 부위 탭의 운동을 세부 부위별로 묶는다 (하체: 허벅지 앞/뒤/엉덩이…, 팔: 앞쪽/뒤쪽).
   // 묶음 안에서는 내 기구로 할 수 있는 운동 먼저, 기구 없는 운동은 아래에 흐리게 (각각 데이터 순서).
@@ -93,7 +105,7 @@ function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
           </button>
         ))}
       </div>
-      {inSplit.size > 0 && <p className="-mt-1 mb-1 text-xs text-slate-400">✓ 담음을 한 번 더 누르면 빠져요</p>}
+      {addedCount > 0 && <p className="-mt-1 mb-1 text-xs text-slate-400">✓ 담음을 한 번 더 누르면 빠져요</p>}
 
       {groups.map((group) => (
         <section key={group.targetId} className="mb-2">
@@ -104,7 +116,7 @@ function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
             {group.exercises.map((exercise) => {
               const eq = EQUIPMENT_BY_ID[exercise.equipmentId];
               const has = isOwned(exercise.equipmentId, equipmentIds);
-              const addedItemId = inSplit.get(exercise.id);
+              const addedItem = inSplit.get(exercise.id);
               return (
                 <li key={exercise.id} className="flex items-center gap-3 py-2.5">
                   <span className={`min-w-0 flex-1 ${has ? '' : 'opacity-60'}`}>
@@ -117,6 +129,11 @@ function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
                         {eq.emoji} {eq.name} · {TARGETS[exercise.target].label}
                       </span>
                     </span>
+                    {has && busy.has(eq.id) && (
+                      <span className="mt-1 flex">
+                        <Tag tone="coral">기구 사용 중</Tag>
+                      </span>
+                    )}
                     {!has && (
                       <span className="mt-1 flex items-center gap-1">
                         <Tag tone="coral">기구 없음</Tag>
@@ -130,12 +147,14 @@ function PickerBody({ split, onAdd, onAddCustom, onRemove, onDone, onGuide }) {
                       </span>
                     )}
                   </span>
-                  {addedItemId ? (
+                  {addedItem?.locked ? (
+                    <span className="shrink-0 px-2 text-xs font-medium text-slate-400">오늘 루틴에 있음</span>
+                  ) : addedItem ? (
                     <button
                       type="button"
                       aria-pressed="true"
                       aria-label={`${exercise.name} 빼기`}
-                      onClick={() => onRemove(addedItemId)}
+                      onClick={() => onRemove(addedItem.id)}
                       className="inline-flex min-h-11 shrink-0 items-center rounded-2xl bg-mint-700 px-4 text-sm font-semibold text-white active:bg-mint-800"
                     >
                       ✓ 담음

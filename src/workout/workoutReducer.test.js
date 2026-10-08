@@ -249,4 +249,45 @@ describe('운동 세션 reducer — 세트 줄', () => {
       barbell_bench_press: [{ weight: 60, reps: 10 }],
     });
   });
+
+  it('운동 추가: 진행 중 운동들의 맨 뒤에 3세트로, 같은 운동은 중복 불가', () => {
+    let s = start();
+    s = finish(s, 'cable_pushdown');
+    s = workoutReducer(s, { type: 'addExercise', exerciseId: 'dumbbell_fly', newKey: 'k1' });
+    expect(order(s)).toEqual([
+      'barbell_bench_press',
+      'incline_dumbbell_press',
+      '랜드마인 프레스',
+      'dumbbell_fly',
+      'cable_pushdown',
+    ]);
+    expect(find(s, 'dumbbell_fly')).toMatchObject({ key: 'k1', added: true, status: 'pending' });
+    expect(find(s, 'dumbbell_fly').setLog).toHaveLength(3);
+    // 이미 오늘 루틴에 있는 운동·같은 이름 직접 입력은 다시 추가되지 않는다
+    expect(workoutReducer(s, { type: 'addExercise', exerciseId: 'barbell_bench_press' })).toBe(s);
+    expect(workoutReducer(s, { type: 'addExercise', customName: '랜드마인 프레스' })).toBe(s);
+    s = workoutReducer(s, { type: 'addExercise', customName: '케이블 플라이 로우', routineExerciseId: 'r9' });
+    expect(find(s, '케이블 플라이 로우')).toMatchObject({ added: true, routineExerciseId: 'r9', exerciseId: null });
+  });
+
+  it('추가한 운동만 뺄 수 있다, 진행 중 운동을 다 끝낸 뒤 추가하면 finished가 풀린다', () => {
+    let s = start();
+    expect(act(s, 'removeExercise', 'barbell_bench_press')).toBe(s);
+    for (const name of ['barbell_bench_press', 'incline_dumbbell_press', 'cable_pushdown', '랜드마인 프레스']) s = finish(s, name);
+    expect(progress(s).finished).toBe(true);
+    s = workoutReducer(s, { type: 'addExercise', exerciseId: 'push_up' });
+    expect(progress(s).finished).toBe(false);
+    expect(order(s)[0]).toBe('push_up');
+    s = act(s, 'removeExercise', 'push_up');
+    expect(find(s, 'push_up')).toBeUndefined();
+    expect(progress(s).finished).toBe(true);
+  });
+
+  it('linkRoutine: 추가한 운동에만 루틴 항목 id를 연결한다', () => {
+    let s = start();
+    s = workoutReducer(s, { type: 'addExercise', exerciseId: 'dumbbell_fly', newKey: 'k1' });
+    s = workoutReducer(s, { type: 'linkRoutine', key: 'k1', routineExerciseId: 'r1' });
+    expect(find(s, 'dumbbell_fly').routineExerciseId).toBe('r1');
+    expect(act(s, 'linkRoutine', 'barbell_bench_press', { routineExerciseId: 'r2' })).toBe(s);
+  });
 });

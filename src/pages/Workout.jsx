@@ -1,6 +1,8 @@
 /** 화면 4. 운동 진행 */
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
+import BottomSheet from '../components/BottomSheet.jsx';
+import Button from '../components/Button.jsx';
 import ExerciseCard from '../components/ExerciseCard.jsx';
 import { GuideSheet } from '../components/ExerciseGuide.jsx';
 import HorizontalScroller from '../components/HorizontalScroller.jsx';
@@ -8,12 +10,14 @@ import MobileLayout from '../components/MobileLayout.jsx';
 import Toast, { useToast } from '../components/Toast.jsx';
 import { EQUIPMENT_BY_ID } from '../data/equipment.js';
 import { EXERCISES_BY_ID } from '../data/exercises.js';
-import { useGym } from '../hooks/useAppData.jsx';
+import { useGym, useRoutine } from '../hooks/useAppData.jsx';
+import { makeId } from '../lib/routine.js';
 import { loadLastLogs } from '../lib/storage.js';
 import { canMarkBusy, isOwned, swapToastMessage } from '../lib/recommend.js';
 import { useWorkout } from '../workout/WorkoutContext.jsx';
-import { progress } from '../workout/workoutReducer.js';
+import { DEFAULT_ADDED_SETS, progress, swapChainOf } from '../workout/workoutReducer.js';
 import { josa } from '../lib/text.js';
+import ExercisePicker from './onboarding/ExercisePicker.jsx';
 import SubstituteSheet from './SubstituteSheet.jsx';
 
 const HIGHLIGHT_MS = 1600;
@@ -31,6 +35,11 @@ export default function Workout() {
   const [sheet, setSheet] = useState(/** @type {{ key: string, reason: 'busy' | 'missing' } | null} */ (null));
   /** 운동 방법 시트 (카드·대체 추천 시트 어디서든 열 수 있어 여기서 띄운다) */
   const [guideId, setGuideId] = useState(null);
+  /** 운동 중 종목 추가 시트. 시트를 연 뒤 추가한 운동 key를 모아, 닫을 때 "내 루틴에도 넣을까요?"를 묻는다 */
+  const [adding, setAdding] = useState(false);
+  const [sessionKeys, setSessionKeys] = useState([]);
+  const [askRoutineKeys, setAskRoutineKeys] = useState(null);
+  const { routine, setRoutine } = useRoutine();
 
   const lastSwappedKey = workout?.lastSwappedKey;
   useEffect(() => {
@@ -90,6 +99,90 @@ export default function Workout() {
     setSheet(null);
   };
 
+  // ── 운동 중 종목 추가 ──
+  /** 오늘 운동을 시작한 분할 (루틴을 고쳐서 없어졌을 수 있음) */
+  const routineSplit = routine?.splits.find((s) => s.id === workout.splitId) ?? null;
+
+  /** 루틴의 해당 분할 운동 목록을 고친다. 운동 중에 루틴을 바꾸면 내 루틴(custom)이 된다. */
+  const updateRoutineSplit = (fn) =>
+    setRoutine({
+      ...routine,
+      source: 'custom',
+      splits: routine.splits.map((s) => (s.id === routineSplit.id ? { ...s, exercises: fn(s.exercises) } : s)),
+    });
+
+  const nameOf = (item) => (item.exerciseId ? EXERCISES_BY_ID[item.exerciseId].name : item.customName);
+
+  const openAdding = () => {
+    setSessionKeys([]);
+    setAdding(true);
+  };
+
+  const addToWorkout = ({ exerciseId = null, customName }) => {
+    const key = makeId('w');
+    dispatch({ type: 'addExercise', exerciseId, customName, newKey: key });
+    setSessionKeys((keys) => [...keys, key]);
+    showToast(`${josa(exerciseId ? EXERCISES_BY_ID[exerciseId].name : customName, '을', '를')} 추가했어요`);
+  };
+
+  /** 담기 시트를 닫을 때: 이번에 추가한 운동이 있으면 루틴에도 넣을지 묻는다 */
+  const closeAdding = () => {
+    setAdding(false);
+    const keys = sessionKeys.filter((key) => workout.items.some((i) => i.key === key));
+    if (keys.length && routineSplit) setAskRoutineKeys(keys);
+  };
+
+  /** "예": 이번에 추가한 운동을 저장 루틴의 그 분할에도 넣는다 (이미 있으면 넣지 않음) */
+  const addSessionToRoutine = () => {
+    const additions = [];
+    for (const key of askRoutineKeys) {
+      const item = workout.items.find((i) => i.key === key);
+      if (!item) continue;
+      const exists = routineSplit.exercises.some((e) =>
+        item.exerciseId ? e.exerciseId === item.exerciseId : !e.exerciseId && e.customName === item.customName,
+      );
+      if (exists) continue;
+      const routineExerciseId = makeId('e');
+      additions.push({
+        id: routineExerciseId,
+        exerciseId: item.exerciseId,
+        ...(item.customName ? { customName: item.customName } : {}),
+        sets: DEFAULT_ADDED_SETS,
+      });
+      dispatch({ type: 'linkRoutine', key, routineExerciseId });
+    }
+    if (additions.length) updateRoutineSplit((list) => [...list, ...additions]);
+    setAskRoutineKeys(null);
+    showToast(`내 루틴(${routineSplit.name})에도 넣었어요`);
+  };
+
+  /** 추가한 운동 빼기 ("내 루틴에도 추가"로 넣었다면 루틴에서도 뺀다) */
+  const removeFromWorkout = (key) => {
+    const item = workout.items.find((i) => i.key === key);
+    if (!item?.added) return;
+    if (item.routineExerciseId && routineSplit) {
+      updateRoutineSplit((list) => list.filter((e) => e.id !== item.routineExerciseId));
+    }
+    dispatch({ type: 'removeExercise', key });
+    setSessionKeys((keys) => keys.filter((k) => k !== key));
+    showToast('추가한 운동을 뺐어요');
+  };
+
+  /** 담기 시트에 넘길 오늘 운동 목록: 원래 루틴 운동(대체 전 운동 포함)은 잠금, 추가한 운동만 뺄 수 있다 */
+  const pickerSplit = adding
+    ? {
+        id: 'workout',
+        name: workout.splitName,
+        exercises: workout.items.flatMap((i) => [
+          { id: i.key, exerciseId: i.exerciseId, customName: i.customName, locked: !i.added },
+          ...swapChainOf(i).map((id) => ({ id: `${i.key}-${id}`, exerciseId: id, locked: true })),
+        ]),
+      }
+    : null;
+
+  const pending = workout.items.filter((i) => i.status === 'pending');
+  const finishedItems = workout.items.filter((i) => i.status !== 'pending');
+
   return (
     <MobileLayout
       header={
@@ -147,7 +240,21 @@ export default function Workout() {
       }
     >
       <ul className="space-y-3">
-        {workout.items.map((item) => {
+        {[...pending, null, ...finishedItems].map((item) => {
+          // 진행 중 운동과 끝난 운동 사이에 [＋ 운동 추가]
+          if (!item) {
+            return (
+              <li key="add-exercise">
+                <button
+                  type="button"
+                  onClick={openAdding}
+                  className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 text-sm font-semibold text-navy-700 active:bg-slate-50"
+                >
+                  ＋ 운동 추가
+                </button>
+              </li>
+            );
+          }
           const exercise = item.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
           return (
             <li key={item.key}>
@@ -173,6 +280,7 @@ export default function Workout() {
                 onSkip={() => dispatch({ type: 'skip', key: item.key })}
                 onAddEquipment={() => addMissingEquipment(item.exerciseId)}
                 onGuide={setGuideId}
+                onRemoveExercise={() => removeFromWorkout(item.key)}
               />
             </li>
           );
@@ -190,6 +298,39 @@ export default function Workout() {
         onAddEquipment={() => addMissingEquipment(workout.items.find((i) => i.key === sheet.key).exerciseId)}
         onGuide={setGuideId}
       />
+      <ExercisePicker
+        split={pickerSplit}
+        title="오늘 운동에 추가"
+        busyEquipmentIds={workout.busyEquipmentIds}
+        onClose={closeAdding}
+        onAdd={(exerciseId) => addToWorkout({ exerciseId })}
+        onAddCustom={(customName) => addToWorkout({ customName })}
+        onRemove={removeFromWorkout}
+      />
+      <BottomSheet open={!!askRoutineKeys} onClose={() => setAskRoutineKeys(null)} title="내 루틴에도 추가할까요?">
+        <p className="-mt-2 text-sm leading-relaxed text-slate-500">
+          방금 추가한 운동을 <b className="text-navy-700">{routineSplit?.name}</b>에도 넣으면, 다음에 이 분할을 시작할
+          때도 들어가요.
+        </p>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {(askRoutineKeys ?? []).map((key) => {
+            const item = workout.items.find((i) => i.key === key);
+            return item ? (
+              <li key={key} className="rounded-full bg-mint-50 px-3 py-1.5 text-sm font-medium text-mint-700">
+                {nameOf(item)}
+              </li>
+            ) : null;
+          })}
+        </ul>
+        <div className="mt-5 flex flex-col gap-2">
+          <Button size="lg" full onClick={addSessionToRoutine}>
+            예, 내 루틴에도 추가
+          </Button>
+          <Button variant="ghost" full onClick={() => setAskRoutineKeys(null)}>
+            아니요, 오늘만 할게요
+          </Button>
+        </div>
+      </BottomSheet>
       <GuideSheet exerciseId={guideId} onClose={() => setGuideId(null)} />
       <Toast toast={toast} />
     </MobileLayout>
