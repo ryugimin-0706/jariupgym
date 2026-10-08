@@ -112,17 +112,24 @@ export default function RoutineEditor({ mode = 'onboarding' }) {
         {splits.map((split, splitIndex) => (
           <section key={split.id} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-1">
-              <label className="sr-only" htmlFor={`name-${split.id}`}>
-                분할 이름
+              {/* 이름은 바로 고칠 수 있다: ✎와 점선 밑줄로 알려준다 */}
+              <label
+                htmlFor={`name-${split.id}`}
+                className="flex min-h-11 min-w-0 flex-1 cursor-text items-center gap-1.5 rounded-t-lg border-b border-dashed border-slate-300 px-1 focus-within:border-solid focus-within:border-mint-500 focus-within:bg-slate-50"
+              >
+                <span className="sr-only">분할 이름 (탭해서 수정)</span>
+                <input
+                  id={`name-${split.id}`}
+                  value={split.name}
+                  onChange={(e) => updateSplit(split.id, (s) => ({ ...s, name: e.target.value }))}
+                  maxLength={20}
+                  placeholder="분할 이름"
+                  className="min-w-0 flex-1 bg-transparent text-lg font-bold text-navy-900 outline-none placeholder:font-normal placeholder:text-slate-400"
+                />
+                <span className="shrink-0 text-base text-slate-400" aria-hidden>
+                  ✎
+                </span>
               </label>
-              <input
-                id={`name-${split.id}`}
-                value={split.name}
-                onChange={(e) => updateSplit(split.id, (s) => ({ ...s, name: e.target.value }))}
-                maxLength={20}
-                placeholder="분할 이름"
-                className="min-h-11 min-w-0 flex-1 rounded-lg px-1 text-lg font-bold text-navy-900 outline-none focus:bg-slate-50"
-              />
               <IconButton label="분할 위로" disabled={splitIndex === 0} onClick={() => setSplits((p) => moveItem(p, splitIndex, -1))}>
                 ↑
               </IconButton>
