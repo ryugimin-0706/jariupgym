@@ -26,7 +26,8 @@ export default function Complete() {
   const swapped = workout.items.filter((i) => i.originalExerciseId);
   const { swapCount } = workout;
 
-  const goHome = () => {
+  /** 운동 세션을 지우고 대표 화면으로 (바로 다음 운동 고르기 화면이 나오면 또 하라는 느낌이라서) */
+  const finish = () => {
     dispatch({ type: 'end' });
     navigate('/', { replace: true });
   };
@@ -35,8 +36,8 @@ export default function Complete() {
     <MobileLayout
       bottom={
         <BottomCTA>
-          <Button size="lg" full onClick={goHome}>
-            홈으로
+          <Button size="lg" full onClick={finish}>
+            운동 마치기
           </Button>
         </BottomCTA>
       }

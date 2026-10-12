@@ -53,7 +53,7 @@ export default function RecommendedRoutine() {
 
   const startAsIs = () => {
     setRoutine({ source: 'recommended', splits: routineSplits });
-    navigate('/', { replace: true });
+    navigate('/home', { replace: true });
   };
 
   return (

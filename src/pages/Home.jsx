@@ -39,16 +39,21 @@ export default function Home() {
     clearAll();
     dispatch({ type: 'end' });
     resetAll();
-    navigate('/welcome', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return (
     <MobileLayout
       header={
         <div className="flex items-center justify-between">
-          <p className="text-lg font-black tracking-tight text-navy-700">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="-ml-2 rounded-lg px-2 py-1 text-lg font-black tracking-tight text-navy-700 active:bg-slate-100"
+            aria-label="첫 화면으로"
+          >
             자리없<span className="text-mint-500">Gym</span>
-          </p>
+          </button>
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}

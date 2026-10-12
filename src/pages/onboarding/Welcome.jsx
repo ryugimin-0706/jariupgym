@@ -1,8 +1,14 @@
-/** 첫 화면 (첫 방문에만): 핵심 동작 "자리 없음 → 대체"를 데모 카드로 보여준다 */
+/**
+ * 대표 화면: 앱을 열 때와 운동을 마친 뒤 항상 먼저 보인다. 핵심 동작 "자리 없음 → 대체"를 데모 카드로 보여준다.
+ * 아래 버튼과 문구는 상황에 따라 바뀐다: 처음(설정 안내) / 설정 중 / 설정 끝(오늘 운동 고르기) / 운동 중(이어서).
+ */
 import { useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
 import Button from '../../components/Button.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
+import { useGym, useRoutine } from '../../hooks/useAppData.jsx';
+import { useWorkout } from '../../workout/WorkoutContext.jsx';
+import { progress } from '../../workout/workoutReducer.js';
 
 const FEATURES = [
   { emoji: '🏋️', text: '내 헬스장에 있는 기구로만' },
@@ -10,23 +16,51 @@ const FEATURES = [
   { emoji: '⚡', text: '탭 한 번으로 오늘 루틴 변경' },
 ];
 
+/** 지금 상황에 맞는 [시작하기] 목적지와 안내 문구 */
+function useStartState() {
+  const { equipmentIds, hasGym } = useGym();
+  const { routine } = useRoutine();
+  const { workout } = useWorkout();
+
+  if (!hasGym) return { kind: 'new', to: '/onboarding/equipment', label: '시작하기', hint: '1분이면 설정 끝 · 로그인 없음' };
+  if (!routine) return { kind: 'setup', to: '/onboarding/routine', label: '이어서 설정하기', hint: `🏋️ 기구 ${equipmentIds.length}개 등록 완료 · 루틴만 정하면 끝` };
+  if (workout) {
+    const { done, total } = progress(workout);
+    return { kind: 'ongoing', to: '/workout', label: '이어서 운동하기', hint: `🏃 ${workout.splitName} 진행 중 · ${done}/${total} 완료` };
+  }
+  return { kind: 'ready', to: '/home', label: '시작하기', hint: `🏋️ 내 헬스장 기구 ${equipmentIds.length}개 · 루틴 ${routine.splits.length}개 준비됨` };
+}
+
 export default function Welcome() {
   const navigate = useNavigate();
+  const start = useStartState();
+  const returning = start.kind !== 'new';
 
   return (
     <MobileLayout
       bottom={
         <BottomCTA>
-          <Button size="lg" full onClick={() => navigate('/onboarding/equipment')}>
-            시작하기
+          <Button size="lg" full onClick={() => navigate(start.to)}>
+            {start.label}
           </Button>
-          <p className="text-center text-xs text-slate-400">1분이면 설정 끝 · 로그인 없음</p>
+          {start.kind === 'ongoing' ? (
+            <button type="button" onClick={() => navigate('/home')} className="w-full text-center text-xs text-slate-500 underline-offset-2 active:underline">
+              {start.hint} · <span className="font-semibold text-navy-700">다른 운동 고르기 ›</span>
+            </button>
+          ) : (
+            <p className="text-center text-xs text-slate-400">{start.hint}</p>
+          )}
         </BottomCTA>
       }
     >
-      <p className="pt-6 text-lg font-black tracking-tight text-navy-700">
-        자리없<span className="text-mint-500">Gym</span>
-      </p>
+      <div className="flex items-center justify-between pt-6">
+        <p className="text-lg font-black tracking-tight text-navy-700">
+          자리없<span className="text-mint-500">Gym</span>
+        </p>
+        {returning && (
+          <span className="rounded-full bg-mint-50 px-3 py-1 text-xs font-semibold text-mint-700">👋 다시 오셨네요</span>
+        )}
+      </div>
 
       <h1 className="mt-8 text-[28px] leading-tight font-bold text-navy-700">
         루틴은 있는데,

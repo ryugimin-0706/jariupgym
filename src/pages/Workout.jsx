@@ -58,7 +58,7 @@ export default function Workout() {
 
   const closeSheet = useCallback(() => setSheet(null), []);
 
-  if (!workout) return <Navigate to="/" replace />;
+  if (!workout) return <Navigate to="/home" replace />;
 
   const { total, done, skipped } = progress(workout);
   const processedPct = total ? ((done + skipped) / total) * 100 : 0;
@@ -190,7 +190,7 @@ export default function Workout() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}
               className="-ml-2 flex size-11 items-center justify-center rounded-full text-2xl text-navy-700 active:bg-slate-100"
               aria-label="뒤로"
             >

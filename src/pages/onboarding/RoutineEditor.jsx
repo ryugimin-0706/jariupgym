@@ -1,4 +1,20 @@
 /** 화면 2-A. 내 루틴 입력 (설정의 "내 루틴 수정"에서도 재사용) */
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
@@ -81,7 +97,7 @@ export default function RoutineEditor({ mode = 'onboarding' }) {
       source: 'custom',
       splits: splits.map((s) => ({ ...s, name: s.name.trim() })),
     });
-    navigate('/', { replace: true });
+    navigate('/home', { replace: true });
   };
 
   return (
@@ -97,6 +113,9 @@ export default function RoutineEditor({ mode = 'onboarding' }) {
       }
     >
       <p className="mt-1 text-sm text-slate-500">운동하는 날(분할)을 만들고, 날마다 하는 운동을 담아주세요.</p>
+      {splits.some((s) => s.exercises.length > 1) && (
+        <p className="mt-1 text-xs text-slate-400">👆 운동을 꾹 눌러 끌면 순서를 바꿀 수 있어요</p>
+      )}
 
       {splits.length === 0 && (
         <div className="mt-8 rounded-3xl border-2 border-dashed border-slate-200 px-6 py-10 text-center">
@@ -151,86 +170,28 @@ export default function RoutineEditor({ mode = 'onboarding' }) {
             {split.exercises.length === 0 ? (
               <p className="mt-2 rounded-xl bg-slate-50 px-3 py-3 text-center text-sm text-slate-400">담은 운동이 없어요</p>
             ) : (
-              <ol className="mt-2 divide-y divide-slate-50">
-                {split.exercises.map((item, i) => {
-                  const exercise = item.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
-                  const eq = exercise ? EQUIPMENT_BY_ID[exercise.equipmentId] : null;
-                  const has = exercise ? isOwned(exercise.equipmentId, equipmentIds) : true;
-                  return (
-                    <li key={item.id} className="py-3">
-                      <div className="flex items-start gap-2">
-                        <span className="mt-0.5 w-5 shrink-0 text-sm font-semibold text-slate-300">{i + 1}</span>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-navy-900">{exercise?.name ?? item.customName}</p>
-                          <p className="mt-0.5 text-xs text-slate-500">
-                            {exercise ? `${eq.emoji} ${eq.name} · ${TARGETS[exercise.target].label}` : '직접 입력한 운동'}
-                          </p>
-                          {(!exercise || !has) && (
-                            <div className="mt-1 flex flex-wrap items-center gap-1">
-                              {!exercise && <Tag>대체 추천 미지원</Tag>}
-                              {exercise && !has && (
-                                <>
-                                  <Tag tone="coral">기구 없음</Tag>
-                                  <button
-                                    type="button"
-                                    onClick={() => addEquipment(eq.id)}
-                                    className="-my-2 min-h-11 px-1.5 text-xs font-semibold text-mint-700 active:underline"
-                                  >
-                                    ＋ 기구 추가
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <IconButton
-                          label={`${exercise?.name ?? item.customName} 삭제`}
-                          onClick={() =>
-                            updateSplit(split.id, (s) => ({ ...s, exercises: s.exercises.filter((e) => e.id !== item.id) }))
-                          }
-                        >
-                          ✕
-                        </IconButton>
-                      </div>
-                      <div className="mt-1 flex items-center justify-between pl-7">
-                        <div className="flex items-center rounded-full bg-slate-50">
-                          <IconButton
-                            label="세트 줄이기"
-                            disabled={item.sets <= MIN_SETS}
-                            onClick={() => updateExercise(split.id, item.id, (e) => ({ ...e, sets: e.sets - 1 }))}
-                          >
-                            −
-                          </IconButton>
-                          <span className="w-12 text-center text-sm font-semibold text-navy-700">{item.sets}세트</span>
-                          <IconButton
-                            label="세트 늘리기"
-                            disabled={item.sets >= MAX_SETS}
-                            onClick={() => updateExercise(split.id, item.id, (e) => ({ ...e, sets: e.sets + 1 }))}
-                          >
-                            +
-                          </IconButton>
-                        </div>
-                        <div className="flex">
-                          <IconButton
-                            label="운동 위로"
-                            disabled={i === 0}
-                            onClick={() => updateSplit(split.id, (s) => ({ ...s, exercises: moveItem(s.exercises, i, -1) }))}
-                          >
-                            ↑
-                          </IconButton>
-                          <IconButton
-                            label="운동 아래로"
-                            disabled={i === split.exercises.length - 1}
-                            onClick={() => updateSplit(split.id, (s) => ({ ...s, exercises: moveItem(s.exercises, i, 1) }))}
-                          >
-                            ↓
-                          </IconButton>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
+              <SortableList
+                items={split.exercises}
+                onReorder={(from, to) =>
+                  updateSplit(split.id, (s) => ({ ...s, exercises: arrayMove(s.exercises, from, to) }))
+                }
+              >
+                {split.exercises.map((item, i) => (
+                  <ExerciseRow
+                    key={item.id}
+                    item={item}
+                    index={i}
+                    count={split.exercises.length}
+                    equipmentIds={equipmentIds}
+                    onAddEquipment={addEquipment}
+                    onRemove={() =>
+                      updateSplit(split.id, (s) => ({ ...s, exercises: s.exercises.filter((e) => e.id !== item.id) }))
+                    }
+                    onSets={(delta) => updateExercise(split.id, item.id, (e) => ({ ...e, sets: e.sets + delta }))}
+                    onMove={(dir) => updateSplit(split.id, (s) => ({ ...s, exercises: moveItem(s.exercises, i, dir) }))}
+                  />
+                ))}
+              </SortableList>
             )}
 
             <Button variant="outline" full className="mt-2" onClick={() => setPickerSplitId(split.id)}>
@@ -271,6 +232,124 @@ export default function RoutineEditor({ mode = 'onboarding' }) {
         </div>
       </BottomSheet>
     </MobileLayout>
+  );
+}
+
+/**
+ * 운동 순서 바꾸기: 휴대폰은 꾹 눌러(0.3초) 끌고, PC는 마우스로 끌어서 옮긴다.
+ * 꾹 누르기 전에 손가락을 움직이면 평소처럼 화면이 스크롤된다. 키보드·스크린리더는 화살표 버튼을 쓴다
+ * (행 전체에 키보드 끌기를 걸면 안쪽 버튼의 Enter/Space까지 가로채서 뺐다).
+ */
+function SortableList({ items, onReorder, children }) {
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 300, tolerance: 8 } }),
+  );
+  const onDragEnd = ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    onReorder(
+      items.findIndex((e) => e.id === active.id),
+      items.findIndex((e) => e.id === over.id),
+    );
+  };
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      onDragStart={() => navigator.vibrate?.(30)}
+      onDragEnd={onDragEnd}
+    >
+      <SortableContext items={items.map((e) => e.id)} strategy={verticalListSortingStrategy}>
+        <ol className="mt-2 divide-y divide-slate-50">{children}</ol>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function ExerciseRow({ item, index: i, count, equipmentIds, onAddEquipment, onRemove, onSets, onMove }) {
+  const { listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  const exercise = item.exerciseId ? EXERCISES_BY_ID[item.exerciseId] : null;
+  const eq = exercise ? EQUIPMENT_BY_ID[exercise.equipmentId] : null;
+  const has = exercise ? isOwned(exercise.equipmentId, equipmentIds) : true;
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      className={`touch-manipulation py-3 select-none [-webkit-touch-callout:none] ${
+        isDragging ? 'relative z-10 rounded-xl bg-white shadow-lg ring-2 ring-mint-500' : ''
+      }`}
+    >
+      <div className="flex items-start gap-2">
+        <span className="mt-0.5 w-5 shrink-0 text-sm font-semibold text-slate-300">{i + 1}</span>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-navy-900">{exercise?.name ?? item.customName}</p>
+          <p className="mt-0.5 text-xs text-slate-500">
+            {exercise ? `${eq.emoji} ${eq.name} · ${TARGETS[exercise.target].label}` : '직접 입력한 운동'}
+          </p>
+          {(!exercise || !has) && (
+            <div className="mt-1 flex flex-wrap items-center gap-1">
+              {!exercise && <Tag>대체 추천 미지원</Tag>}
+              {exercise && !has && (
+                <>
+                  <Tag tone="coral">기구 없음</Tag>
+                  <button
+                    type="button"
+                    onClick={() => onAddEquipment(eq.id)}
+                    className="-my-2 min-h-11 px-1.5 text-xs font-semibold text-mint-700 active:underline"
+                  >
+                    ＋ 기구 추가
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        <IconButton
+          label={`${exercise?.name ?? item.customName} 삭제`}
+          onClick={onRemove}
+        >
+          ✕
+        </IconButton>
+      </div>
+      <div className="mt-1 flex items-center justify-between pl-7">
+        <div className="flex items-center rounded-full bg-slate-50">
+          <IconButton
+            label="세트 줄이기"
+            disabled={item.sets <= MIN_SETS}
+            onClick={() => onSets(-1)}
+          >
+            −
+          </IconButton>
+          <span className="w-12 text-center text-sm font-semibold text-navy-700">{item.sets}세트</span>
+          <IconButton
+            label="세트 늘리기"
+            disabled={item.sets >= MAX_SETS}
+            onClick={() => onSets(1)}
+          >
+            +
+          </IconButton>
+        </div>
+        <div className="flex">
+          <IconButton
+            label="운동 위로"
+            disabled={i === 0}
+            onClick={() => onMove(-1)}
+          >
+            ↑
+          </IconButton>
+          <IconButton
+            label="운동 아래로"
+            disabled={i === count - 1}
+            onClick={() => onMove(1)}
+          >
+            ↓
+          </IconButton>
+        </div>
+      </div>
+    </li>
   );
 }
 

@@ -69,7 +69,7 @@ export default function EquipmentSelect({ mode = 'onboarding', next }) {
             <h1 className="text-xl font-bold text-navy-700">내 헬스장 기구</h1>
           </div>
         ) : (
-          <PageHeader step="1 / 2" onBack={() => navigate('/welcome')} />
+          <PageHeader step="1 / 2" onBack={() => navigate('/')} />
         )
       }
       bottom={
