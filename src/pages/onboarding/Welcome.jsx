@@ -1,12 +1,16 @@
 /**
  * 대표 화면: 앱을 열 때와 운동을 마친 뒤 항상 먼저 보인다. 핵심 동작 "자리 없음 → 대체"를 데모 카드로 보여준다.
+ * 설정을 끝낸 사람에게는 소개 아래에 이번 주 운동 현황(누르면 이번 달 달력)을 덧붙인다.
  * 아래 버튼과 문구는 상황에 따라 바뀐다: 처음(설정 안내) / 설정 중 / 설정 끝(오늘 운동 고르기) / 운동 중(이어서).
  */
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomCTA from '../../components/BottomCTA.jsx';
 import Button from '../../components/Button.jsx';
 import MobileLayout from '../../components/MobileLayout.jsx';
+import WorkoutStats from '../../components/WorkoutStats.jsx';
 import { useGym, useRoutine } from '../../hooks/useAppData.jsx';
+import { loadHistory } from '../../lib/storage.js';
 import { useWorkout } from '../../workout/WorkoutContext.jsx';
 import { progress } from '../../workout/workoutReducer.js';
 
@@ -35,6 +39,9 @@ export default function Welcome() {
   const navigate = useNavigate();
   const start = useStartState();
   const returning = start.kind !== 'new';
+  /** 설정을 끝낸 사람(설정 끝·운동 중)에게만 운동 현황을 보여준다 */
+  const showStats = start.kind === 'ready' || start.kind === 'ongoing';
+  const [history] = useState(loadHistory);
 
   return (
     <MobileLayout
@@ -99,16 +106,26 @@ export default function Welcome() {
         예시: 바벨 벤치프레스 자리가 없으면 같은 가슴 운동인 덤벨 벤치프레스로 바로 바꿔요.
       </p>
 
-      <ul className="mt-8 space-y-2.5">
-        {FEATURES.map((f) => (
-          <li key={f.text} className="flex items-center gap-3 text-[15px] text-navy-900">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-mint-50 text-lg" aria-hidden>
-              {f.emoji}
-            </span>
-            {f.text}
-          </li>
-        ))}
-      </ul>
+      {/* 기능 소개는 처음 온 사람에게만 (다시 온 사람은 그 자리에 운동 현황이 보이게) */}
+      {!showStats && (
+        <ul className="mt-8 space-y-2.5">
+          {FEATURES.map((f) => (
+            <li key={f.text} className="flex items-center gap-3 text-[15px] text-navy-900">
+              <span className="flex size-9 items-center justify-center rounded-xl bg-mint-50 text-lg" aria-hidden>
+                {f.emoji}
+              </span>
+              {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* 설정을 끝낸 사람에게는 소개 아래 빈 공간에 이번 주 운동 현황 */}
+      {showStats && (
+        <div className="mt-5">
+          <WorkoutStats history={history} />
+        </div>
+      )}
     </MobileLayout>
   );
 }

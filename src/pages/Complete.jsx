@@ -6,7 +6,8 @@ import Button from '../components/Button.jsx';
 import MobileLayout from '../components/MobileLayout.jsx';
 import { EXERCISES_BY_ID } from '../data/exercises.js';
 import { useWorkout } from '../workout/WorkoutContext.jsx';
-import { loadLastLogs, saveLastLogs } from '../lib/storage.js';
+import { addRecord, dateKey } from '../lib/history.js';
+import { loadHistory, loadLastLogs, saveHistory, saveLastLogs } from '../lib/storage.js';
 import { mergeLastLogs, progress, swapChainOf } from '../workout/workoutReducer.js';
 
 export default function Complete() {
@@ -14,9 +15,22 @@ export default function Complete() {
   const { workout, dispatch } = useWorkout();
   const finished = workout ? progress(workout).finished : false;
 
-  // 운동별 마지막 기록 저장 ("지난 기록 불러오기"용). 같은 기록을 여러 번 저장해도 결과는 같다.
+  // 운동별 마지막 기록("지난 기록 불러오기"용)과 운동 기록(대표 화면 현황용) 저장.
+  // 같은 세션을 여러 번 저장해도 결과는 같다 (예전 세션은 id가 없어 첫 운동 key로 대신).
   useEffect(() => {
-    if (workout && finished) saveLastLogs(mergeLastLogs(loadLastLogs(), workout));
+    if (!workout || !finished) return;
+    saveLastLogs(mergeLastLogs(loadLastLogs(), workout));
+    const { doneSets, volume } = progress(workout);
+    saveHistory(
+      addRecord(loadHistory(), {
+        id: workout.id ?? workout.items[0]?.key,
+        date: dateKey(new Date()),
+        splitName: workout.splitName,
+        doneSets,
+        volume: Math.round(volume),
+        swapCount: workout.swapCount,
+      }),
+    );
   }, [workout, finished]);
 
   if (!workout) return <Navigate to="/" replace />;

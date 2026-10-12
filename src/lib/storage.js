@@ -9,6 +9,7 @@ export const KEYS = {
   routine: 'jariupgym:routine',
   workout: 'jariupgym:workout', // sessionStorage
   lastLogs: 'jariupgym:lastLogs',
+  history: 'jariupgym:history',
 };
 
 export const ROUTINE_VERSION = 1;
@@ -119,11 +120,25 @@ export function saveLastLogs(logs) {
   return write('local', KEYS.lastLogs, logs);
 }
 
+// ── 운동 기록 (대표 화면 이번 주·이번 달 현황용) ──
+
+/** @returns {import('./history.js').WorkoutRecord[]} */
+export function loadHistory() {
+  const data = read('local', KEYS.history);
+  return Array.isArray(data) ? data.filter((r) => r && typeof r.date === 'string') : [];
+}
+
+/** @param {import('./history.js').WorkoutRecord[]} history */
+export function saveHistory(history) {
+  return write('local', KEYS.history, history);
+}
+
 // ── 데이터 초기화 ──────────────────────────────
 
 export function clearAll() {
   remove('local', KEYS.gym);
   remove('local', KEYS.routine);
   remove('local', KEYS.lastLogs);
+  remove('local', KEYS.history);
   clearWorkout();
 }

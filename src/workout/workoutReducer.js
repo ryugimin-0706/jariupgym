@@ -52,6 +52,7 @@ const newRow = (exerciseId) => ({ weight: null, reps: DEFAULT_COUNT[unitOf(exerc
  */
 export function createWorkout(split) {
   return {
+    id: makeId('s'),
     splitId: split.id,
     splitName: split.name,
     items: split.exercises.map((e) => ({
