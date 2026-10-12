@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>자리없Gym — 브로셔</title>
+<style>
+  :root {
+    --navy: #1e3a5f; --navy-900: #132840; --navy-50: #eef3f8;
+    --mint: #2ec4b6; --mint-700: #1b8278; --mint-50: #e9f9f7; --mint-100: #c8f0eb;
+    --coral: #c9542f; --coral-50: #fff3ef;
+    --slate-500: #64748b; --slate-400: #94a3b8; --slate-200: #e2e8f0; --slate-100: #f1f5f9;
+    --cream: #fbfaf6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--cream); color: var(--navy-900);
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    line-height: 1.65; word-break: keep-all; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 56px; }
+  a { color: inherit; }
+
+  /* 표지 */
+  .hero { background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 6px 24px rgba(19,40,64,.08); }
+  .hero img { display: block; width: 100%; height: auto; }
+  .hero-body { padding: 24px 28px 28px; display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; }
+  .logo { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: var(--navy-900); margin: 0; }
+  .logo span { color: var(--mint-700); }
+  .oneliner { margin: 4px 0 0; color: var(--slate-500); font-size: 16px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: #fff !important; text-decoration: none; font-weight: 700; padding: 13px 22px; border-radius: 14px; white-space: nowrap; }
+
+  /* 섹션 */
+  section { margin-top: 28px; background: #fff; border-radius: 24px; padding: 28px; box-shadow: 0 2px 10px rgba(19,40,64,.05); }
+  .eyebrow { display: inline-block; font-size: 13px; font-weight: 800; color: var(--mint-700); background: var(--mint-50); padding: 4px 10px; border-radius: 999px; letter-spacing: .3px; }
+  h2 { margin: 10px 0 14px; font-size: 24px; line-height: 1.35; letter-spacing: -0.4px; }
+  .lead { font-size: 19px; font-weight: 600; margin: 0; }
+  .lead mark { background: linear-gradient(transparent 58%, var(--mint-100) 58%); color: inherit; padding: 0 2px; }
+  .muted { color: var(--slate-500); }
+  .src { margin-top: 18px; font-size: 13px; color: var(--slate-500); border-top: 1px dashed var(--slate-200); padding-top: 12px; }
+
+  /* 문제 정의 키워드 */
+  .keyword { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chip { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--slate-100); color: var(--navy); }
+  .chip.coral { background: var(--coral-50); color: var(--coral); }
+
+  /* 숫자 카드 */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 6px; }
+  .stat { background: var(--cream); border: 1px solid var(--slate-200); border-radius: 18px; padding: 16px 16px 14px; }
+  .stat b { display: block; font-size: 34px; line-height: 1.1; color: var(--navy-900); letter-spacing: -1px; }
+  .stat b em { font-style: normal; color: var(--mint-700); }
+  .stat p { margin: 6px 0 0; font-size: 14px; color: var(--slate-500); }
+
+  /* 막대그래프 */
+  .bars { margin-top: 22px; }
+  .bars h3 { font-size: 15px; margin: 0 0 10px; }
+  .bar { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: 10px; margin: 7px 0; font-size: 14px; }
+  .track { height: 14px; background: var(--slate-100); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; background: var(--mint); border-radius: 999px; }
+  .fill.navy { background: var(--navy); }
+  .pct { text-align: right; font-weight: 700; color: var(--navy); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* 인용 */
+  .quotes { display: grid; gap: 10px; margin-top: 22px; }
+  blockquote { margin: 0; background: var(--navy-50); border-radius: 14px; padding: 12px 16px; font-size: 14.5px; color: var(--navy); }
+  blockquote cite { display: block; margin-top: 4px; font-style: normal; font-size: 12.5px; color: var(--slate-500); }
+
+  /* 해결 방안 */
+  .solution { display: grid; grid-template-columns: 1fr 230px; gap: 24px; align-items: center; padding: 18px 0; border-top: 1px solid var(--slate-100); }
+  .solution:first-of-type { border-top: 0; padding-top: 4px; }
+  .solution h3 { margin: 0 0 6px; font-size: 18px; }
+  .solution .tag { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--coral); background: var(--coral-50); padding: 2px 8px; border-radius: 999px; margin-bottom: 6px; }
+  .solution p { margin: 0; font-size: 15px; color: #334155; }
+  .solution ul { margin: 8px 0 0; padding-left: 18px; font-size: 14.5px; color: #334155; }
+  .shot { width: 100%; border-radius: 22px; border: 6px solid var(--navy-900); box-shadow: 0 8px 20px rgba(19,40,64,.15); display: block; }
+  .rule { margin-top: 18px; background: var(--cream); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
+  .rule b { color: var(--mint-700); }
+
+  /* 프로토타입 */
+  .proto { display: grid; grid-template-columns: 1fr 220px; gap: 24px; align-items: center; }
+  .proto img { width: 100%; border-radius: 16px; border: 1px solid var(--slate-200); display: block; }
+  .url { font-size: 22px; font-weight: 800; color: var(--navy-900); margin: 4px 0 14px; word-break: break-all; }
+  .steps { margin: 16px 0 0; padding-left: 20px; font-size: 14.5px; color: #334155; }
+
+  /* 회고 */
+  .retro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .card { border-radius: 18px; padding: 16px; background: var(--cream); border: 1px solid var(--slate-200); }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p { margin: 0; font-size: 14.5px; color: #334155; }
+  .card.good h3 { color: var(--mint-700); }
+  .card.bad h3 { color: var(--coral); }
+  .card.next h3 { color: var(--navy); }
+
+  footer { text-align: center; margin-top: 28px; font-size: 13px; color: var(--slate-400); }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 16px 12px 40px; }
+    section { padding: 22px 18px; }
+    .two, .retro, .solution, .proto { grid-template-columns: 1fr; }
+    .solution .shot, .proto img { max-width: 260px; margin: 0 auto; }
+    .bar { grid-template-columns: 120px 1fr 40px; }
+    h2 { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 표지 -->
+  <div class="hero">
+    <img src="{{COVER}}" alt="헬스장에서 벤치프레스를 기다리는 사람과 비어 있는 다른 기구를 추천하는 화면을 그린 표지" />
+    <div class="hero-body">
+      <div>
+        <p class="logo">자리없<span>Gym</span></p>
+        <p class="oneliner">헬스장 기구가 사용 중일 때, 지금 비어 있는 기구로 오늘 루틴을 3초 만에 바꿔주는 서비스</p>
+      </div>
+      <a class="btn" href="https://jariupgym.vercel.app" target="_blank" rel="noopener">지금 써보기 →</a>
+    </div>
+  </div>
+
+  <!-- 1. 프로젝트명 -->
+  <section>
+    <span class="eyebrow">01 · 프로젝트명</span>
+    <h2>자리없Gym <span class="muted" style="font-weight:600;font-size:18px">— 루틴은 있는데, 자리가 없다면</span></h2>
+    <p class="muted" style="margin:0">"자리 없음" 버튼 하나로, 같은 부위를 자극하는 대체 운동을 바로 찾아주는 헬스장 루틴 도우미</p>
+  </section>
+
+  <!-- 2. 문제 정의 -->
+  <section>
+    <span class="eyebrow">02 · 문제 정의</span>
+    <h2>정해진 루틴으로 운동하는 사람이<br />붐비는 시간에 원하는 기구를 못 쓰면, 루틴이 꼬입니다</h2>
+    <p class="lead">
+      헬스장에서 하려던 기구가 사용 중일 때, 대체할 운동이 바로 떠오르지 않아
+      <mark>기다리거나 순서를 뒤섞다가 결국 계획한 운동을 다 못 끝내는</mark> 문제입니다.
+    </p>
+    <div class="keyword">
+      <span class="chip">상황 · 붐비는 시간, 기구가 사용 중</span>
+      <span class="chip">타깃 · 루틴이 있는 헬스장 이용자, 특히 초보</span>
+      <span class="chip coral">핵심 불편 · 루틴 꼬임</span>
+    </div>
+  </section>
+
+  <!-- 3. 근거 -->
+  <section>
+    <span class="eyebrow">03 · 근거</span>
+    <h2>헬스장 이용자 33명에게 물어봤어요</h2>
+    <div class="stats">
+      <div class="stat"><b><em>70</em>%</b><p>기구가 사용 중이라 못 쓰는 일을 <strong>주 1회 이상</strong> 겪는다</p></div>
+      <div class="stat"><b><em>73</em>%</b><p>이 때문에 <strong>계획한 운동을 다 못 끝낸</strong> 적이 있다</p></div>
+      <div class="stat"><b><em>81</em>%</b><p>운동 경력 1년 미만은 대체 운동이 <strong>바로 떠오르지 않는다</strong> (13/16명)</p></div>
+      <div class="stat"><b><em>96</em>%</b><p>앱·영상 루틴을 쓰는 사람 중 <strong>우리 헬스장엔 그 기구가 없어서</strong> 못 한 적이 있다</p></div>
+    </div>
+
+    <div class="two">
+      <div class="bars">
+        <h3>대체 운동을 정할 때 어려운 점 <span class="muted" style="font-weight:400">(복수 선택)</span></h3>
+        <div class="bar"><span>루틴 순서가 꼬인다</span><div class="track"><div class="fill navy" style="width:48%"></div></div><span class="pct">48%</span></div>
+        <div class="bar"><span>고민하는 시간이 아깝다</span><div class="track"><div class="fill navy" style="width:33%"></div></div><span class="pct">33%</span></div>
+        <div class="bar"><span>비어 있는 기구로 뭘 할지 모름</span><div class="track"><div class="fill navy" style="width:24%"></div></div><span class="pct">24%</span></div>
+        <div class="bar"><span>같은 부위 운동을 모름</span><div class="track"><div class="fill navy" style="width:21%"></div></div><span class="pct">21%</span></div>
+      </div>
+      <div class="bars">
+        <h3>자리가 가장 자주 없는 기구 <span class="muted" style="font-weight:400">(복수 선택)</span></h3>
+        <div class="bar"><span>랫풀다운</span><div class="track"><div class="fill" style="width:61%"></div></div><span class="pct">61%</span></div>
+        <div class="bar"><span>케이블 머신</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="pct">55%</span></div>
+        <div class="bar"><span>벤치프레스</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">30%</span></div>
+        <div class="bar"><span>스미스 머신</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">30%</span></div>
+      </div>
+    </div>
+
+    <div class="quotes">
+      <blockquote>"머신을 쓰려다 없을 때 대신할 수 있는 케이블·프리웨이트 운동을 리스트로 알려줘서 그중에 고를 수 있으면 좋겠어요."<cite>— 경력 3년 이상, 대형 체인 헬스장</cite></blockquote>
+      <blockquote>"중급자 이상은 대체 운동이 바로 생각나요. 입문자에게는 루틴과 함께 기구 사용법을 알려주면 좋겠어요."<cite>— 경력 1~3년, 대형 체인 헬스장</cite></blockquote>
+      <blockquote>"운동 초보자들도 알기 쉽게 이용할 수 있으면 좋을 것 같아요."<cite>— 경력 6개월~1년, 대형 체인 헬스장</cite></blockquote>
+    </div>
+
+    <p class="src">
+      출처: 자리없Gym 자체 설문 「헬스장 '기구 자리 없음' 경험 조사」(Google Forms, 2026.10.6~10.7).
+      전체 응답 42명 중 최근 3개월 내 헬스장 이용자 33명 기준. 인용은 응답 내용을 짧게 다듬었습니다.
+    </p>
+  </section>
+
+  <!-- 4. 해결 방안 -->
+  <section>
+    <span class="eyebrow">04 · 해결 방안</span>
+    <h2>"자리 없음" 한 번이면, 오늘 루틴이 바로 다시 짜여요</h2>
+
+    <div class="solution">
+      <div>
+        <span class="tag">대체 운동이 바로 안 떠오른다</span>
+        <h3>① 자리 없음 → 같은 부위 대체 운동 추천</h3>
+        <p>기구가 사용 중이면 [자리 없음]만 누르면, <strong>같은 부위·비슷한 동작</strong>이면서 <strong>지금 비어 있는 기구</strong>로 할 수 있는 운동을 <strong>추천 이유와 함께</strong> 최대 3개 보여줘요. 고르면 그 자리에서 루틴이 바뀌고, 이미 한 세트 기록은 그대로 남아요.</p>
+      </div>
+      <img class="shot" src="{{SHOT1}}" alt="벤치프레스가 사용 중이라 덤벨 벤치프레스 등 대체 운동 3개를 추천하는 화면" />
+    </div>
+
+    <div class="solution">
+      <div>
+        <span class="tag">루틴 순서가 꼬인다</span>
+        <h3>② 순서 뒤로 미루기 · 사용 중 표시</h3>
+        <p>바로 바꾸기 싫거나 대신할 운동이 없으면 <strong>[순서 뒤로 미루기]</strong>로 다른 운동을 먼저 하세요. 사용 중인 기구는 위에 <strong>"사용 중"</strong>으로 표시해 두었다가, 비면 "다시 비었어요"로 풀면 돼요. (응답자의 91%가 이럴 때 "다른 운동 순서를 먼저 한다")</p>
+      </div>
+      <img class="shot" src="{{SHOT3}}" alt="벤치프레스 사용 중 표시와 순서 뒤로 미루기 버튼이 보이는 화면" />
+    </div>
+
+    <div class="solution">
+      <div>
+        <span class="tag">우리 헬스장엔 그 기구가 없다</span>
+        <h3>③ 내 헬스장 기구에 맞춘 루틴</h3>
+        <p>처음에 <strong>다니는 헬스장의 기구만</strong> 골라두면 모든 추천이 그 안에서만 나와요. 추천 루틴도 없는 기구 운동은 같은 부위 운동으로 <strong>자동으로 바꿔서 "내 헬스장 맞춤"</strong>으로 보여줘요. 낯선 기구와 운동은 ⓘ로 생김새와 자세를 알려줘서 초보도 고를 수 있어요.</p>
+      </div>
+      <img class="shot" src="{{SHOT2}}" alt="스쿼트랙이 없어서 바벨 백스쿼트 대신 고블릿 스쿼트가 들어간 추천 루틴 화면" />
+    </div>
+
+    <div class="rule">
+      <b>추천 방식</b> — AI가 아닌 규칙 기반이라 빠르고 예측 가능해요. ① 같은 세부 부위 ② 내 헬스장에 있는 기구 ③ 지금 사용 중이 아닌 기구 ④ 오늘 루틴에 없는 운동 중에서,
+      동작 패턴이 같으면 +3, 다른 기구면 +1, 맨몸이면 −1점. 점수가 같으면 덤벨·바벨 같은 프리웨이트를 먼저 보여줘요. (기구 26종 · 운동 87개)
+    </div>
+  </section>
+
+  <!-- 5. 프로토타입 URL -->
+  <section>
+    <span class="eyebrow">05 · 프로토타입 URL</span>
+    <div class="proto">
+      <div>
+        <h2 style="margin-bottom:4px">휴대폰으로 바로 써보세요</h2>
+        <p class="url"><a href="https://jariupgym.vercel.app" target="_blank" rel="noopener">jariupgym.vercel.app</a></p>
+        <a class="btn" href="https://jariupgym.vercel.app" target="_blank" rel="noopener">지금 써보기 →</a>
+        <ol class="steps">
+          <li>[시작하기] → [대부분 있어요] → [다음]</li>
+          <li>[추천 루틴으로 시작할게요] → [이대로 시작하기]</li>
+          <li>홈에서 가슴·삼두 시작 → 첫 운동의 <strong>[자리 없음]</strong></li>
+        </ol>
+        <p class="muted" style="font-size:13.5px;margin:10px 0 0">로그인·설치 없음 · 모바일 화면에 맞춰져 있어요 · 홈 화면에 추가하면 앱처럼 열려요</p>
+      </div>
+      <img src="{{QR}}" alt="jariupgym.vercel.app으로 연결되는 QR 코드" />
+    </div>
+  </section>
+
+  <!-- 6. 제작 회고 -->
+  <section>
+    <span class="eyebrow">06 · 제작 회고</span>
+    <h2>만들면서 배운 것</h2>
+    <div class="retro">
+      <div class="card good">
+        <h3>잘 된 점</h3>
+        <p>{{RETRO_GOOD}}</p>
+      </div>
+      <div class="card bad">
+        <h3>아쉬운 점</h3>
+        <p>{{RETRO_BAD}}</p>
+      </div>
+      <div class="card next">
+        <h3>다음에는</h3>
+        <p>{{RETRO_NEXT}}</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>자리없Gym · 제1부 제3부스 · 유기민</footer>
+</div>
+</body>
+</html>
