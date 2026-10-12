@@ -4,103 +4,139 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>자리없Gym — 브로셔</title>
+<!-- 글꼴: Pretendard (못 불러오면 시스템 한글 글꼴로 대체) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <style>
   :root {
     --navy: #1e3a5f; --navy-900: #132840; --navy-50: #eef3f8;
     --mint: #2ec4b6; --mint-700: #1b8278; --mint-50: #e9f9f7; --mint-100: #c8f0eb;
-    --coral: #c9542f; --coral-50: #fff3ef;
-    --slate-500: #64748b; --slate-400: #94a3b8; --slate-200: #e2e8f0; --slate-100: #f1f5f9;
+    --coral: #c9542f; --coral-50: #fff3ef; --coral-100: #ffe0d6;
+    --amber-50: #fff8e6; --amber-700: #9a6400;
+    --text: #2b3a4d; --sub: #5b6b80; --line: #e6ebf1; --soft: #f5f7fa;
     --cream: #fbfaf6;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; background: var(--cream); color: var(--navy-900);
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
-    line-height: 1.65; word-break: keep-all; -webkit-font-smoothing: antialiased;
+    margin: 0; background: var(--cream); color: var(--text);
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    font-size: 16px; line-height: 1.75; letter-spacing: -0.2px;
+    word-break: keep-all; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 56px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
   a { color: inherit; }
+  strong { color: var(--navy-900); font-weight: 700; }
+  .hl { background: linear-gradient(transparent 60%, var(--mint-100) 60%); padding: 0 2px; }
 
-  /* 표지 */
-  .hero { background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 6px 24px rgba(19,40,64,.08); }
+  /* ── 표지 ── */
+  .hero { background: #fff; border-radius: 28px; overflow: hidden; box-shadow: 0 10px 30px rgba(19,40,64,.08); }
   .hero img { display: block; width: 100%; height: auto; }
-  .hero-body { padding: 24px 28px 28px; display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; }
-  .logo { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: var(--navy-900); margin: 0; }
+  .hero-body { padding: 26px 30px 30px; display: flex; flex-wrap: wrap; gap: 18px 24px; align-items: center; justify-content: space-between; }
+  .logo { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; color: var(--navy-900); margin: 0; line-height: 1.2; }
   .logo span { color: var(--mint-700); }
-  .oneliner { margin: 4px 0 0; color: var(--slate-500); font-size: 16px; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: #fff !important; text-decoration: none; font-weight: 700; padding: 13px 22px; border-radius: 14px; white-space: nowrap; }
+  .oneliner { margin: 6px 0 0; color: var(--sub); font-size: 16.5px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .badge { font-size: 13.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: var(--soft); color: var(--navy); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: #fff !important; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 16px; white-space: nowrap; font-size: 16px; box-shadow: 0 6px 16px rgba(30,58,95,.25); }
 
-  /* 섹션 */
-  section { margin-top: 28px; background: #fff; border-radius: 24px; padding: 28px; box-shadow: 0 2px 10px rgba(19,40,64,.05); }
-  .eyebrow { display: inline-block; font-size: 13px; font-weight: 800; color: var(--mint-700); background: var(--mint-50); padding: 4px 10px; border-radius: 999px; letter-spacing: .3px; }
-  h2 { margin: 10px 0 14px; font-size: 24px; line-height: 1.35; letter-spacing: -0.4px; }
-  .lead { font-size: 19px; font-weight: 600; margin: 0; }
-  .lead mark { background: linear-gradient(transparent 58%, var(--mint-100) 58%); color: inherit; padding: 0 2px; }
-  .muted { color: var(--slate-500); }
-  .src { margin-top: 18px; font-size: 13px; color: var(--slate-500); border-top: 1px dashed var(--slate-200); padding-top: 12px; }
+  /* ── 섹션 공통 ── */
+  section { margin-top: 28px; background: #fff; border-radius: 28px; padding: 32px; box-shadow: 0 3px 14px rgba(19,40,64,.05); }
+  .sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .sec-icon { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; font-size: 24px; background: var(--mint-50); flex: none; }
+  .sec-num { font-size: 13px; font-weight: 700; color: var(--mint-700); letter-spacing: .5px; }
+  .sec-title { font-size: 15px; font-weight: 700; color: var(--sub); margin: 0; }
+  h2 { margin: 14px 0 12px; font-size: 26px; line-height: 1.4; letter-spacing: -0.7px; color: var(--navy-900); font-weight: 800; }
+  .desc { font-size: 17px; color: var(--text); margin: 0; }
+  .src { margin-top: 22px; font-size: 13px; color: var(--sub); background: var(--soft); border-radius: 14px; padding: 12px 14px; }
 
-  /* 문제 정의 키워드 */
-  .keyword { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-  .chip { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--slate-100); color: var(--navy); }
-  .chip.coral { background: var(--coral-50); color: var(--coral); }
+  /* ── 프로젝트명 ── */
+  .name-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+  .name-row .big { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--navy-900); }
+  .name-row .big span { color: var(--mint-700); }
+  .name-row .sub { font-size: 18px; color: var(--sub); font-weight: 600; }
 
-  /* 숫자 카드 */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 6px; }
-  .stat { background: var(--cream); border: 1px solid var(--slate-200); border-radius: 18px; padding: 16px 16px 14px; }
-  .stat b { display: block; font-size: 34px; line-height: 1.1; color: var(--navy-900); letter-spacing: -1px; }
+  /* ── 문제 정의: 상황 흐름 ── */
+  .story { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 20px; }
+  .story .step { background: var(--soft); border-radius: 16px; padding: 10px 14px; font-size: 15px; font-weight: 600; color: var(--navy); }
+  .story .step.bad { background: var(--coral-50); color: var(--coral); }
+  .story .arrow { color: var(--sub); font-size: 18px; }
+  .problem-box { background: var(--navy-50); border-radius: 20px; padding: 18px 20px; font-size: 18px; line-height: 1.7; color: var(--navy-900); font-weight: 600; }
+  .who { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .who div { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; font-size: 14.5px; }
+  .who b { display: block; font-size: 13px; color: var(--sub); font-weight: 600; margin-bottom: 2px; }
+
+  /* ── 근거 ── */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+  @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .stat { background: var(--cream); border: 1px solid var(--line); border-radius: 20px; padding: 16px 16px 14px; }
+  .stat .emo { font-size: 24px; }
+  .stat b { display: block; font-size: 36px; line-height: 1.1; color: var(--navy-900); letter-spacing: -1.2px; margin-top: 4px; font-weight: 800; }
   .stat b em { font-style: normal; color: var(--mint-700); }
-  .stat p { margin: 6px 0 0; font-size: 14px; color: var(--slate-500); }
-
-  /* 막대그래프 */
-  .bars { margin-top: 22px; }
-  .bars h3 { font-size: 15px; margin: 0 0 10px; }
-  .bar { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: 10px; margin: 7px 0; font-size: 14px; }
-  .track { height: 14px; background: var(--slate-100); border-radius: 999px; overflow: hidden; }
+  .stat p { margin: 6px 0 0; font-size: 14.5px; color: var(--sub); line-height: 1.55; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 26px; }
+  .bars h3 { font-size: 16px; margin: 0 0 12px; color: var(--navy-900); }
+  .bar { display: grid; grid-template-columns: 1fr 44px; gap: 4px 10px; align-items: center; margin: 10px 0; font-size: 14.5px; }
+  .bar .label { grid-column: 1 / -1; }
+  .track { height: 12px; background: var(--soft); border-radius: 999px; overflow: hidden; }
   .fill { height: 100%; background: var(--mint); border-radius: 999px; }
   .fill.navy { background: var(--navy); }
-  .pct { text-align: right; font-weight: 700; color: var(--navy); }
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pct { text-align: right; font-weight: 700; color: var(--navy); font-size: 14px; }
+  .quotes { display: grid; gap: 10px; margin-top: 26px; }
+  .quote { display: flex; gap: 12px; align-items: flex-start; background: var(--soft); border-radius: 18px; padding: 14px 16px; }
+  .quote .face { font-size: 22px; line-height: 1.2; }
+  .quote p { margin: 0; font-size: 15.5px; color: var(--navy-900); }
+  .quote cite { display: block; margin-top: 2px; font-style: normal; font-size: 13px; color: var(--sub); }
 
-  /* 인용 */
-  .quotes { display: grid; gap: 10px; margin-top: 22px; }
-  blockquote { margin: 0; background: var(--navy-50); border-radius: 14px; padding: 12px 16px; font-size: 14.5px; color: var(--navy); }
-  blockquote cite { display: block; margin-top: 4px; font-style: normal; font-size: 12.5px; color: var(--slate-500); }
+  /* ── 해결 방안 ── */
+  .solution { display: grid; grid-template-columns: 1fr 250px; gap: 28px; align-items: center; padding: 26px 0; border-top: 1px dashed var(--line); }
+  .solution.first { border-top: 0; padding-top: 10px; }
+  .pain { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: var(--coral); background: var(--coral-50); padding: 5px 12px; border-radius: 999px; }
+  .solution h3 { margin: 12px 0 8px; font-size: 21px; line-height: 1.4; letter-spacing: -0.5px; color: var(--navy-900); }
+  .solution h3 .n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--navy); color: #fff; font-size: 15px; margin-right: 6px; vertical-align: 2px; }
+  .solution .one { margin: 0 0 14px; font-size: 16px; color: var(--text); }
+  .howto { background: var(--cream); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; }
+  .howto .ttl { font-size: 13px; font-weight: 700; color: var(--mint-700); margin-bottom: 8px; }
+  .howto ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .howto li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.55; }
+  .howto li .k { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--mint-50); color: var(--mint-700); font-weight: 800; font-size: 13px; display: grid; place-items: center; margin-top: 1px; }
+  .points { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .point { font-size: 13.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: var(--mint-50); color: var(--mint-700); }
+  .voice { margin-top: 12px; font-size: 13.5px; color: var(--sub); }
+  .voice b { color: var(--navy); }
+  .shot { width: 100%; border-radius: 26px; border: 7px solid var(--navy-900); box-shadow: 0 12px 26px rgba(19,40,64,.18); display: block; }
+  .rule { margin-top: 10px; background: var(--amber-50); border-radius: 18px; padding: 16px 18px; font-size: 15px; }
+  .rule .ttl { font-weight: 800; color: var(--amber-700); margin-bottom: 6px; }
+  .rule ul { margin: 0; padding-left: 20px; }
+  .rule li { margin: 2px 0; }
 
-  /* 해결 방안 */
-  .solution { display: grid; grid-template-columns: 1fr 230px; gap: 24px; align-items: center; padding: 18px 0; border-top: 1px solid var(--slate-100); }
-  .solution:first-of-type { border-top: 0; padding-top: 4px; }
-  .solution h3 { margin: 0 0 6px; font-size: 18px; }
-  .solution .tag { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--coral); background: var(--coral-50); padding: 2px 8px; border-radius: 999px; margin-bottom: 6px; }
-  .solution p { margin: 0; font-size: 15px; color: #334155; }
-  .solution ul { margin: 8px 0 0; padding-left: 18px; font-size: 14.5px; color: #334155; }
-  .shot { width: 100%; border-radius: 22px; border: 6px solid var(--navy-900); box-shadow: 0 8px 20px rgba(19,40,64,.15); display: block; }
-  .rule { margin-top: 18px; background: var(--cream); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
-  .rule b { color: var(--mint-700); }
+  /* ── 프로토타입 ── */
+  .proto { display: grid; grid-template-columns: 1fr 230px; gap: 28px; align-items: center; }
+  .proto img { width: 100%; border-radius: 20px; border: 1px solid var(--line); display: block; }
+  .url { font-size: 24px; font-weight: 800; color: var(--navy-900); margin: 2px 0 16px; word-break: break-all; letter-spacing: -0.5px; }
+  .tryit { margin-top: 18px; background: var(--soft); border-radius: 18px; padding: 14px 16px; }
+  .tryit .ttl { font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
+  .tryit ol { margin: 0; padding-left: 20px; font-size: 15px; }
+  .tryit li { margin: 3px 0; }
+  .note { margin: 12px 0 0; font-size: 13.5px; color: var(--sub); }
 
-  /* 프로토타입 */
-  .proto { display: grid; grid-template-columns: 1fr 220px; gap: 24px; align-items: center; }
-  .proto img { width: 100%; border-radius: 16px; border: 1px solid var(--slate-200); display: block; }
-  .url { font-size: 22px; font-weight: 800; color: var(--navy-900); margin: 4px 0 14px; word-break: break-all; }
-  .steps { margin: 16px 0 0; padding-left: 20px; font-size: 14.5px; color: #334155; }
+  /* ── 회고 ── */
+  .retro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 6px; }
+  .card { border-radius: 22px; padding: 18px; }
+  .card .emo { font-size: 28px; }
+  .card h3 { margin: 6px 0 8px; font-size: 17px; }
+  .card p { margin: 0; font-size: 15px; line-height: 1.7; color: var(--text); }
+  .card.good { background: var(--mint-50); } .card.good h3 { color: var(--mint-700); }
+  .card.bad { background: var(--coral-50); } .card.bad h3 { color: var(--coral); }
+  .card.next { background: var(--navy-50); } .card.next h3 { color: var(--navy); }
 
-  /* 회고 */
-  .retro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .card { border-radius: 18px; padding: 16px; background: var(--cream); border: 1px solid var(--slate-200); }
-  .card h3 { margin: 0 0 8px; font-size: 16px; }
-  .card p { margin: 0; font-size: 14.5px; color: #334155; }
-  .card.good h3 { color: var(--mint-700); }
-  .card.bad h3 { color: var(--coral); }
-  .card.next h3 { color: var(--navy); }
+  footer { text-align: center; margin-top: 30px; font-size: 13px; color: #9aa7b6; }
 
-  footer { text-align: center; margin-top: 28px; font-size: 13px; color: var(--slate-400); }
-
-  @media (max-width: 640px) {
-    .wrap { padding: 16px 12px 40px; }
-    section { padding: 22px 18px; }
-    .two, .retro, .solution, .proto { grid-template-columns: 1fr; }
+  @media (max-width: 680px) {
+    .wrap { padding: 14px 12px 40px; }
+    section { padding: 24px 18px; border-radius: 22px; }
+    h2 { font-size: 22px; }
+    .two, .retro, .solution, .proto, .who { grid-template-columns: 1fr; }
     .solution .shot, .proto img { max-width: 260px; margin: 0 auto; }
-    .bar { grid-template-columns: 120px 1fr 40px; }
-    h2 { font-size: 21px; }
+    .solution { gap: 18px; }
   }
 </style>
 </head>
@@ -113,7 +149,12 @@
     <div class="hero-body">
       <div>
         <p class="logo">자리없<span>Gym</span></p>
-        <p class="oneliner">헬스장 기구가 사용 중일 때, 지금 비어 있는 기구로 오늘 루틴을 3초 만에 바꿔주는 서비스</p>
+        <p class="oneliner">헬스장 기구가 사용 중일 때, 비어 있는 기구로 오늘 루틴을 <strong>3초 만에</strong> 바꿔줘요 💪</p>
+        <div class="badges">
+          <span class="badge">🔓 로그인 없음</span>
+          <span class="badge">📱 모바일 웹</span>
+          <span class="badge">🏠 내 헬스장 맞춤</span>
+        </div>
       </div>
       <a class="btn" href="https://jariupgym.vercel.app" target="_blank" rel="noopener">지금 써보기 →</a>
     </div>
@@ -121,118 +162,184 @@
 
   <!-- 1. 프로젝트명 -->
   <section>
-    <span class="eyebrow">01 · 프로젝트명</span>
-    <h2>자리없Gym <span class="muted" style="font-weight:600;font-size:18px">— 루틴은 있는데, 자리가 없다면</span></h2>
-    <p class="muted" style="margin:0">"자리 없음" 버튼 하나로, 같은 부위를 자극하는 대체 운동을 바로 찾아주는 헬스장 루틴 도우미</p>
+    <div class="sec-head">
+      <div class="sec-icon">🏷️</div>
+      <div><div class="sec-num">01</div><p class="sec-title">프로젝트명</p></div>
+    </div>
+    <div class="name-row" style="margin-top:14px">
+      <span class="big">자리없<span>Gym</span></span>
+      <span class="sub">루틴은 있는데, 자리가 없다면?</span>
+    </div>
+    <p class="desc" style="margin-top:8px">"자리 없음" 버튼 하나로 <span class="hl">같은 부위를 자극하는 대체 운동</span>을 바로 찾아주는 헬스장 루틴 도우미예요.</p>
   </section>
 
   <!-- 2. 문제 정의 -->
   <section>
-    <span class="eyebrow">02 · 문제 정의</span>
-    <h2>정해진 루틴으로 운동하는 사람이<br />붐비는 시간에 원하는 기구를 못 쓰면, 루틴이 꼬입니다</h2>
-    <p class="lead">
-      헬스장에서 하려던 기구가 사용 중일 때, 대체할 운동이 바로 떠오르지 않아
-      <mark>기다리거나 순서를 뒤섞다가 결국 계획한 운동을 다 못 끝내는</mark> 문제입니다.
-    </p>
-    <div class="keyword">
-      <span class="chip">상황 · 붐비는 시간, 기구가 사용 중</span>
-      <span class="chip">타깃 · 루틴이 있는 헬스장 이용자, 특히 초보</span>
-      <span class="chip coral">핵심 불편 · 루틴 꼬임</span>
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--coral-50)">😩</div>
+      <div><div class="sec-num">02</div><p class="sec-title">문제 정의</p></div>
+    </div>
+    <h2>붐비는 시간, 하려던 기구에 사람이 있으면<br />오늘 루틴이 꼬여요</h2>
+
+    <div class="story">
+      <span class="step">🏋️ 오늘은 가슴 하는 날</span><span class="arrow">→</span>
+      <span class="step bad">🙅 벤치에 사람이…</span><span class="arrow">→</span>
+      <span class="step">🤔 뭐로 대신하지?</span><span class="arrow">→</span>
+      <span class="step">⏳ 기다리다 순서 꼬임</span><span class="arrow">→</span>
+      <span class="step bad">🚪 결국 다 못 하고 끝</span>
+    </div>
+
+    <div class="problem-box">
+      정해진 루틴으로 운동하는 사람은 원하는 기구를 못 쓸 때 <strong>대체할 운동이 바로 떠오르지 않아</strong>,
+      기다리거나 순서를 뒤섞다가 결국 <span class="hl">계획한 운동을 다 못 끝낸다.</span>
+    </div>
+    <div class="who">
+      <div><b>📍 상황</b>붐비는 시간, 기구가 사용 중</div>
+      <div><b>🙋 타깃</b>루틴이 있는 헬스장 이용자, 특히 초보</div>
+      <div><b>💥 핵심 불편</b><strong>루틴 꼬임</strong></div>
     </div>
   </section>
 
   <!-- 3. 근거 -->
   <section>
-    <span class="eyebrow">03 · 근거</span>
+    <div class="sec-head">
+      <div class="sec-icon">📊</div>
+      <div><div class="sec-num">03</div><p class="sec-title">근거</p></div>
+    </div>
     <h2>헬스장 이용자 33명에게 물어봤어요</h2>
+
     <div class="stats">
-      <div class="stat"><b><em>70</em>%</b><p>기구가 사용 중이라 못 쓰는 일을 <strong>주 1회 이상</strong> 겪는다</p></div>
-      <div class="stat"><b><em>73</em>%</b><p>이 때문에 <strong>계획한 운동을 다 못 끝낸</strong> 적이 있다</p></div>
-      <div class="stat"><b><em>81</em>%</b><p>운동 경력 1년 미만은 대체 운동이 <strong>바로 떠오르지 않는다</strong> (13/16명)</p></div>
-      <div class="stat"><b><em>96</em>%</b><p>앱·영상 루틴을 쓰는 사람 중 <strong>우리 헬스장엔 그 기구가 없어서</strong> 못 한 적이 있다</p></div>
+      <div class="stat"><div class="emo">🔁</div><b><em>70</em>%</b><p>기구가 사용 중이라 못 쓰는 일을 <strong>주 1회 이상</strong> 겪어요</p></div>
+      <div class="stat"><div class="emo">🚪</div><b><em>73</em>%</b><p>이 때문에 <strong>계획한 운동을 다 못 끝낸</strong> 적이 있어요</p></div>
+      <div class="stat"><div class="emo">🤔</div><b><em>81</em>%</b><p>운동 1년 미만은 대체 운동이 <strong>바로 안 떠올라요</strong> (13/16명)</p></div>
+      <div class="stat"><div class="emo">🏚️</div><b><em>96</em>%</b><p>앱·영상 루틴을 쓰는 사람 중 <strong>우리 헬스장엔 그 기구가 없어서</strong> 못 한 적이 있어요</p></div>
     </div>
 
     <div class="two">
       <div class="bars">
-        <h3>대체 운동을 정할 때 어려운 점 <span class="muted" style="font-weight:400">(복수 선택)</span></h3>
-        <div class="bar"><span>루틴 순서가 꼬인다</span><div class="track"><div class="fill navy" style="width:48%"></div></div><span class="pct">48%</span></div>
-        <div class="bar"><span>고민하는 시간이 아깝다</span><div class="track"><div class="fill navy" style="width:33%"></div></div><span class="pct">33%</span></div>
-        <div class="bar"><span>비어 있는 기구로 뭘 할지 모름</span><div class="track"><div class="fill navy" style="width:24%"></div></div><span class="pct">24%</span></div>
-        <div class="bar"><span>같은 부위 운동을 모름</span><div class="track"><div class="fill navy" style="width:21%"></div></div><span class="pct">21%</span></div>
+        <h3>😵 대체 운동을 정할 때 어려운 점</h3>
+        <div class="bar"><span class="label">루틴 순서가 꼬인다</span><div class="track"><div class="fill navy" style="width:48%"></div></div><span class="pct">48%</span></div>
+        <div class="bar"><span class="label">고민하는 시간이 아깝다</span><div class="track"><div class="fill navy" style="width:33%"></div></div><span class="pct">33%</span></div>
+        <div class="bar"><span class="label">비어 있는 기구로 뭘 할지 모르겠다</span><div class="track"><div class="fill navy" style="width:24%"></div></div><span class="pct">24%</span></div>
+        <div class="bar"><span class="label">같은 부위 운동을 모르겠다</span><div class="track"><div class="fill navy" style="width:21%"></div></div><span class="pct">21%</span></div>
       </div>
       <div class="bars">
-        <h3>자리가 가장 자주 없는 기구 <span class="muted" style="font-weight:400">(복수 선택)</span></h3>
-        <div class="bar"><span>랫풀다운</span><div class="track"><div class="fill" style="width:61%"></div></div><span class="pct">61%</span></div>
-        <div class="bar"><span>케이블 머신</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="pct">55%</span></div>
-        <div class="bar"><span>벤치프레스</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">30%</span></div>
-        <div class="bar"><span>스미스 머신</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">30%</span></div>
+        <h3>🔥 자리가 가장 자주 없는 기구</h3>
+        <div class="bar"><span class="label">랫풀다운</span><div class="track"><div class="fill" style="width:61%"></div></div><span class="pct">61%</span></div>
+        <div class="bar"><span class="label">케이블 머신</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="pct">55%</span></div>
+        <div class="bar"><span class="label">벤치프레스</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">30%</span></div>
+        <div class="bar"><span class="label">스미스 머신</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">30%</span></div>
       </div>
     </div>
 
     <div class="quotes">
-      <blockquote>"머신을 쓰려다 없을 때 대신할 수 있는 케이블·프리웨이트 운동을 리스트로 알려줘서 그중에 고를 수 있으면 좋겠어요."<cite>— 경력 3년 이상, 대형 체인 헬스장</cite></blockquote>
-      <blockquote>"중급자 이상은 대체 운동이 바로 생각나요. 입문자에게는 루틴과 함께 기구 사용법을 알려주면 좋겠어요."<cite>— 경력 1~3년, 대형 체인 헬스장</cite></blockquote>
-      <blockquote>"운동 초보자들도 알기 쉽게 이용할 수 있으면 좋을 것 같아요."<cite>— 경력 6개월~1년, 대형 체인 헬스장</cite></blockquote>
+      <div class="quote"><span class="face">💬</span><div><p>"머신이 없을 때 대신할 케이블·프리웨이트 운동을 리스트로 알려주면 그중에 고를 수 있어 좋겠어요."</p><cite>경력 3년 이상 · 대형 체인 헬스장</cite></div></div>
+      <div class="quote"><span class="face">💬</span><div><p>"중급자는 대체 운동이 바로 생각나요. 입문자에겐 루틴과 함께 기구 사용법을 알려주면 좋겠어요."</p><cite>경력 1~3년 · 대형 체인 헬스장</cite></div></div>
+      <div class="quote"><span class="face">💬</span><div><p>"운동 초보자들도 알기 쉽게 이용할 수 있으면 좋겠어요."</p><cite>경력 6개월~1년 · 대형 체인 헬스장</cite></div></div>
     </div>
 
-    <p class="src">
-      출처: 자리없Gym 자체 설문 「헬스장 '기구 자리 없음' 경험 조사」(Google Forms, 2026.10.6~10.7).
-      전체 응답 42명 중 최근 3개월 내 헬스장 이용자 33명 기준. 인용은 응답 내용을 짧게 다듬었습니다.
-    </p>
+    <p class="src">📎 출처: 자리없Gym 자체 설문 「헬스장 '기구 자리 없음' 경험 조사」(Google Forms, 2026.10.6~10.7) · 전체 응답 42명 중 최근 3개월 내 헬스장 이용자 33명 기준 · 인용은 짧게 다듬었어요.</p>
   </section>
 
   <!-- 4. 해결 방안 -->
   <section>
-    <span class="eyebrow">04 · 해결 방안</span>
-    <h2>"자리 없음" 한 번이면, 오늘 루틴이 바로 다시 짜여요</h2>
+    <div class="sec-head">
+      <div class="sec-icon">💡</div>
+      <div><div class="sec-num">04</div><p class="sec-title">해결 방안</p></div>
+    </div>
+    <h2>"자리 없음" 한 번이면,<br />오늘 루틴이 바로 다시 짜여요</h2>
 
-    <div class="solution">
+    <div class="solution first">
       <div>
-        <span class="tag">대체 운동이 바로 안 떠오른다</span>
-        <h3>① 자리 없음 → 같은 부위 대체 운동 추천</h3>
-        <p>기구가 사용 중이면 [자리 없음]만 누르면, <strong>같은 부위·비슷한 동작</strong>이면서 <strong>지금 비어 있는 기구</strong>로 할 수 있는 운동을 <strong>추천 이유와 함께</strong> 최대 3개 보여줘요. 고르면 그 자리에서 루틴이 바뀌고, 이미 한 세트 기록은 그대로 남아요.</p>
+        <span class="pain">😵 대체 운동이 바로 안 떠올라요</span>
+        <h3><span class="n">1</span>같은 부위 대체 운동 추천</h3>
+        <p class="one">지금 <strong>비어 있는 기구</strong>로 할 수 있는 운동을 <strong>이유와 함께</strong> 골라줘요.</p>
+        <div class="howto">
+          <div class="ttl">👉 이렇게 써요</div>
+          <ol>
+            <li><span class="k">1</span>운동 카드에서 <strong>[자리 없음]</strong> 탭</li>
+            <li><span class="k">2</span>추천 3개 중 하나 고르기 <span style="color:var(--sub)">(예: 바벨 → 덤벨 벤치프레스)</span></li>
+            <li><span class="k">3</span>루틴이 바로 바뀌고, 한 세트 기록은 그대로 ✅</li>
+          </ol>
+        </div>
+        <div class="points">
+          <span class="point">⚡ 3초 만에</span>
+          <span class="point">🎯 같은 부위·비슷한 동작</span>
+          <span class="point">📝 추천 이유 표시</span>
+        </div>
       </div>
       <img class="shot" src="{{SHOT1}}" alt="벤치프레스가 사용 중이라 덤벨 벤치프레스 등 대체 운동 3개를 추천하는 화면" />
     </div>
 
     <div class="solution">
       <div>
-        <span class="tag">루틴 순서가 꼬인다</span>
-        <h3>② 순서 뒤로 미루기 · 사용 중 표시</h3>
-        <p>바로 바꾸기 싫거나 대신할 운동이 없으면 <strong>[순서 뒤로 미루기]</strong>로 다른 운동을 먼저 하세요. 사용 중인 기구는 위에 <strong>"사용 중"</strong>으로 표시해 두었다가, 비면 "다시 비었어요"로 풀면 돼요. (응답자의 91%가 이럴 때 "다른 운동 순서를 먼저 한다")</p>
+        <span class="pain">🌀 루틴 순서가 꼬여요</span>
+        <h3><span class="n">2</span>순서 뒤로 미루기 · 사용 중 표시</h3>
+        <p class="one">바로 바꾸기 싫거나 대신할 운동이 없으면, <strong>다른 운동부터</strong> 하면 돼요.</p>
+        <div class="howto">
+          <div class="ttl">👉 이렇게 써요</div>
+          <ol>
+            <li><span class="k">1</span><strong>[순서 뒤로 미루기]</strong>로 그 운동을 뒤로</li>
+            <li><span class="k">2</span>위쪽 <strong>"🛋️ 벤치프레스 사용 중"</strong> 표시로 기억</li>
+            <li><span class="k">3</span>기구가 비면 <strong>[다시 비었어요]</strong> 탭</li>
+          </ol>
+        </div>
+        <p class="voice">🙋 응답자의 <b>91%</b>가 이럴 때 "다른 운동 순서를 먼저 한다"고 답했어요.</p>
       </div>
       <img class="shot" src="{{SHOT3}}" alt="벤치프레스 사용 중 표시와 순서 뒤로 미루기 버튼이 보이는 화면" />
     </div>
 
     <div class="solution">
       <div>
-        <span class="tag">우리 헬스장엔 그 기구가 없다</span>
-        <h3>③ 내 헬스장 기구에 맞춘 루틴</h3>
-        <p>처음에 <strong>다니는 헬스장의 기구만</strong> 골라두면 모든 추천이 그 안에서만 나와요. 추천 루틴도 없는 기구 운동은 같은 부위 운동으로 <strong>자동으로 바꿔서 "내 헬스장 맞춤"</strong>으로 보여줘요. 낯선 기구와 운동은 ⓘ로 생김새와 자세를 알려줘서 초보도 고를 수 있어요.</p>
+        <span class="pain">🏚️ 우리 헬스장엔 그 기구가 없어요</span>
+        <h3><span class="n">3</span>내 헬스장 기구에 맞춘 루틴</h3>
+        <p class="one">처음에 <strong>다니는 헬스장 기구만</strong> 골라두면, 모든 추천이 그 안에서만 나와요.</p>
+        <div class="howto">
+          <div class="ttl">👉 이렇게 써요</div>
+          <ol>
+            <li><span class="k">1</span>기구 고르기 <span style="color:var(--sub)">([대부분 있어요] 후 없는 것만 빼기)</span></li>
+            <li><span class="k">2</span>추천 루틴에서 없는 기구 운동은 <strong>자동으로 바뀜</strong> 🔄</li>
+            <li><span class="k">3</span>낯선 기구·운동은 <strong>ⓘ</strong>로 생김새와 자세 확인</li>
+          </ol>
+        </div>
+        <div class="points">
+          <span class="point">🏠 내 헬스장 맞춤</span>
+          <span class="point">🔰 초보도 쉽게</span>
+        </div>
       </div>
       <img class="shot" src="{{SHOT2}}" alt="스쿼트랙이 없어서 바벨 백스쿼트 대신 고블릿 스쿼트가 들어간 추천 루틴 화면" />
     </div>
 
     <div class="rule">
-      <b>추천 방식</b> — AI가 아닌 규칙 기반이라 빠르고 예측 가능해요. ① 같은 세부 부위 ② 내 헬스장에 있는 기구 ③ 지금 사용 중이 아닌 기구 ④ 오늘 루틴에 없는 운동 중에서,
-      동작 패턴이 같으면 +3, 다른 기구면 +1, 맨몸이면 −1점. 점수가 같으면 덤벨·바벨 같은 프리웨이트를 먼저 보여줘요. (기구 26종 · 운동 87개)
+      <div class="ttl">🧮 어떻게 추천하나요? (AI가 아닌 규칙 기반이라 빠르고 예측 가능해요)</div>
+      <ul>
+        <li>✅ <strong>같은 세부 부위</strong> · <strong>내 헬스장에 있고</strong> · <strong>지금 비어 있는 기구</strong> · 오늘 루틴에 없는 운동만 후보</li>
+        <li>➕ 동작이 같으면 +3, 다른 기구면 +1, 맨몸이면 −1 · 동점이면 덤벨·바벨 먼저</li>
+        <li>📚 기구 26종 · 운동 87개 · 가슴·등·하체·어깨·팔·복근</li>
+      </ul>
     </div>
   </section>
 
   <!-- 5. 프로토타입 URL -->
   <section>
-    <span class="eyebrow">05 · 프로토타입 URL</span>
-    <div class="proto">
+    <div class="sec-head">
+      <div class="sec-icon">🚀</div>
+      <div><div class="sec-num">05</div><p class="sec-title">프로토타입 URL</p></div>
+    </div>
+    <div class="proto" style="margin-top:6px">
       <div>
-        <h2 style="margin-bottom:4px">휴대폰으로 바로 써보세요</h2>
+        <h2 style="margin-bottom:4px">📱 휴대폰으로 바로 써보세요</h2>
         <p class="url"><a href="https://jariupgym.vercel.app" target="_blank" rel="noopener">jariupgym.vercel.app</a></p>
         <a class="btn" href="https://jariupgym.vercel.app" target="_blank" rel="noopener">지금 써보기 →</a>
-        <ol class="steps">
-          <li>[시작하기] → [대부분 있어요] → [다음]</li>
-          <li>[추천 루틴으로 시작할게요] → [이대로 시작하기]</li>
-          <li>홈에서 가슴·삼두 시작 → 첫 운동의 <strong>[자리 없음]</strong></li>
-        </ol>
-        <p class="muted" style="font-size:13.5px;margin:10px 0 0">로그인·설치 없음 · 모바일 화면에 맞춰져 있어요 · 홈 화면에 추가하면 앱처럼 열려요</p>
+        <div class="tryit">
+          <div class="ttl">⏱️ 1분 체험 코스</div>
+          <ol>
+            <li>[시작하기] → [대부분 있어요] → [다음]</li>
+            <li>[추천 루틴으로 시작할게요] → [이대로 시작하기]</li>
+            <li>가슴·삼두 시작 → 첫 운동의 <strong>[자리 없음]</strong> 👈 핵심!</li>
+          </ol>
+        </div>
+        <p class="note">🔓 로그인·설치 없음 · 🏠 홈 화면에 추가하면 앱처럼 열려요</p>
       </div>
       <img src="{{QR}}" alt="jariupgym.vercel.app으로 연결되는 QR 코드" />
     </div>
@@ -240,21 +347,15 @@
 
   <!-- 6. 제작 회고 -->
   <section>
-    <span class="eyebrow">06 · 제작 회고</span>
+    <div class="sec-head">
+      <div class="sec-icon">✍️</div>
+      <div><div class="sec-num">06</div><p class="sec-title">제작 회고</p></div>
+    </div>
     <h2>만들면서 배운 것</h2>
     <div class="retro">
-      <div class="card good">
-        <h3>잘 된 점</h3>
-        <p>{{RETRO_GOOD}}</p>
-      </div>
-      <div class="card bad">
-        <h3>아쉬운 점</h3>
-        <p>{{RETRO_BAD}}</p>
-      </div>
-      <div class="card next">
-        <h3>다음에는</h3>
-        <p>{{RETRO_NEXT}}</p>
-      </div>
+      <div class="card good"><div class="emo">😊</div><h3>잘 된 점</h3><p>{{RETRO_GOOD}}</p></div>
+      <div class="card bad"><div class="emo">😅</div><h3>아쉬운 점</h3><p>{{RETRO_BAD}}</p></div>
+      <div class="card next"><div class="emo">📸</div><h3>다음에는</h3><p>{{RETRO_NEXT}}</p></div>
     </div>
   </section>
 
