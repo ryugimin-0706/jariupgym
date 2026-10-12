@@ -27,7 +27,7 @@ export default function WorkoutStats({ history }) {
 
   const footer =
     week.swaps > 0
-      ? { emoji: '🔁', text: `자리 없어도 기다리지 않고 ${week.swaps}번 바꿨어요`, accent: true }
+      ? { emoji: '🔁', text: `자리 없을 때 기다리지 않고 ${week.swaps}번 바꿨어요`, accent: true }
       : history.length === 0
         ? { emoji: '💪', text: '첫 운동을 마치면 여기에 도장이 찍혀요' }
         : week.count === 0

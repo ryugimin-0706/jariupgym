@@ -66,7 +66,7 @@ export default function Complete() {
         <div className="mt-8 w-full rounded-3xl bg-mint-50 px-6 py-7">
           {swapCount > 0 ? (
             <>
-              <p className="text-sm text-mint-700">자리 없어도</p>
+              <p className="text-sm text-mint-700">자리 없을 때</p>
               <p className="mt-1 text-2xl leading-snug font-bold text-navy-900">
                 기다리지 않고 <span className="text-mint-600">{swapCount}번</span> 바꿨어요
               </p>

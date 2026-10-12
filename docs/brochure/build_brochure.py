@@ -43,6 +43,7 @@ def main():
         "SHOT1": data_uri(os.path.join(HERE, "screen-1-substitute.jpg"), as_jpeg=True),
         "SHOT2": data_uri(os.path.join(HERE, "screen-2-recommended.jpg"), max_width=600, as_jpeg=True),
         "SHOT3": data_uri(os.path.join(HERE, "screen-4-defer.jpg"), max_width=600, as_jpeg=True),
+        "SHOT4": data_uri(os.path.join(HERE, "screen-5-stats.jpg"), max_width=600, as_jpeg=True),
         "QR": data_uri(os.path.join(HERE, "qr-card.png")),
     }
     for key, value in {**images, **RETRO}.items():
