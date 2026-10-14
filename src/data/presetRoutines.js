@@ -31,6 +31,7 @@ export const PRESET_ROUTINES = [
       'dumbbell_lateral_raise',
       'cable_lateral_raise',
       'machine_shoulder_press',
+      'rear_delt_fly_machine',
     ],
   },
   {
