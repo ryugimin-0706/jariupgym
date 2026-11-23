@@ -41,7 +41,6 @@ export function canMarkBusy(exerciseId) {
 export function scoreCandidate(original, candidate) {
   let score = 0;
   if (candidate.pattern === original.pattern) score += 3;
-  if (candidate.equipmentId !== original.equipmentId) score += 1;
   if (EQUIPMENT_BY_ID[candidate.equipmentId]?.alwaysAvailable) score -= 1;
   return score;
 }

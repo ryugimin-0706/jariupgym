@@ -5,7 +5,7 @@ import { EXERCISE_GUIDES, videoSearchUrl } from '../data/exerciseGuides.js';
 import { EXERCISES, EXERCISES_BY_ID } from '../data/exercises.js';
 import { PRESET_ROUTINES } from '../data/presetRoutines.js';
 import { PATTERNS, TARGETS } from '../data/taxonomy.js';
-import { buildReason, canMarkBusy, getSubstitutes, swapToastMessage } from './recommend.js';
+import { buildReason, canMarkBusy, getSubstitutes, scoreCandidate, swapToastMessage } from './recommend.js';
 import { adaptPresetRoutines } from './routine.js';
 
 /** "대부분 있어요" = 맨몸 제외 전체 기구 */
@@ -149,6 +149,27 @@ describe('후보 조건', () => {
 
   it('직접 입력이나 알 수 없는 운동은 빈 배열', () => {
     expect(getSubstitutes(null, { ownedEquipmentIds: ALL_OWNED })).toEqual([]);
+  });
+});
+
+describe('점수', () => {
+  const bench = EXERCISES_BY_ID.barbell_bench_press;
+  it('같은 동작 +3', () => {
+    expect(scoreCandidate(bench, EXERCISES_BY_ID.dumbbell_bench_press)).toBe(3);
+  });
+  it('맨몸 −1', () => {
+    expect(scoreCandidate(bench, EXERCISES_BY_ID.push_up)).toBe(2);
+  });
+  it('동작이 다르면 0', () => {
+    expect(scoreCandidate(bench, EXERCISES_BY_ID.pec_deck_fly)).toBe(0);
+  });
+  it('같은 동작은 항상 다른 동작보다 위 (최저 2점 > 최고 0점)', () => {
+    for (const original of EXERCISES) {
+      const list = getSubstitutes(original.id, { ownedEquipmentIds: ALL_OWNED, busyEquipmentIds: [original.equipmentId] }, 99);
+      const firstOther = list.findIndex((s) => s.exercise.pattern !== original.pattern);
+      if (firstOther === -1) continue;
+      expect(list.slice(firstOther).every((s) => s.exercise.pattern !== original.pattern)).toBe(true);
+    }
   });
 });
 
